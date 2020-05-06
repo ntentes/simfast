@@ -18,3 +18,5 @@ RoxygenNote: 7.1.0
 Authors@R: c(
     person("Hanna", "Jankowski", email = "hkj@mathstat.yorku.ca", role = "aut"),
     person("Konstantinos", "Ntentes", email = "kntentes@yorku.ca", role = "cre"))
+URL: https://github.com/ntentes/simfast
+BugReports: https://github.com/ntentes/simfast/issues
