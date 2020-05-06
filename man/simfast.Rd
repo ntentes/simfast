@@ -25,7 +25,10 @@ simfast(
 \arguments{
 \item{formula}{an object of class \code{\link{formula}}, which is a symbolic
 description of the model to be fitted. By default, intercepts are NOT
-included, so change argument \code{intercept = TRUE} to include one.}
+included, so change argument \code{intercept = TRUE} to include one. NOTE: When
+including categorical predictors, be sure that you set
+\code{options('contrasts')} in your global options to a desired setting. This
+function was designed with the \code{'contr.treatment'} option in mind.}
 
 \item{data}{optional data frame (or object coercible by \code{\link{as.data.frame}})
 to a data frame) containing the variables in the model. Variables are taken

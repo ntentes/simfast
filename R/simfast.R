@@ -87,7 +87,10 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'
 #' @param formula an object of class \code{\link{formula}}, which is a symbolic
 #'     description of the model to be fitted. By default, intercepts are NOT
-#'     included, so change argument \code{intercept = TRUE} to include one.
+#'     included, so change argument \code{intercept = TRUE} to include one. NOTE: When
+#'     including categorical predictors, be sure that you set
+#'     \code{options('contrasts')} in your global options to a desired setting. This
+#'     function was designed with the \code{'contr.treatment'} option in mind.
 #' @param data optional data frame (or object coercible by \code{\link{as.data.frame}})
 #'     to a data frame) containing the variables in the model. Variables are taken
 #'     from \code{environment(formula)} if not found in \code{data}.
