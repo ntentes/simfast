@@ -1,7 +1,7 @@
 Package: simfast
 Type: Package
 Title: Isotonic Single-Index Regression Models with Generalized Link Functions
-Version: 0.1.0.9000
+Version: 0.1.0.9100
 Description: Fitting isotonic generalized single-index regression models 
     via maximum likelihood and exact methods with formula support and 
     multiple distribution family and link function support.
@@ -9,11 +9,11 @@ License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Imports:
-    Iso,
-    movMF
+    Iso (>= 0.0-18),
+    movMF (>= 0.2-4)
 Suggests:
     knitr,
-    plotly,
+    plotly (>= 4.9.2),
     rmarkdown
 RoxygenNote: 7.1.0
 Authors@R: c(
