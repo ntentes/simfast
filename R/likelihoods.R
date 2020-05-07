@@ -1,5 +1,5 @@
 
-#' Log Likelihood Function for Gaussian Family with Indentity Link (Internal)
+#' Log Likelihood Function for Gaussian Family (Internal)
 #'
 #' @param mle vector of maximum likelihood estimator
 #' @param y vector of numeric response values
@@ -9,12 +9,12 @@
 #'
 #'
 find.loglik.gaussian	<-	function(mle, y, nn){
-  ll	<-	-sum((y-mle)^2)
+  ll	<-	sum(nn*dnorm(y, mean = mle, log = TRUE))
   return(ll)
 }
 
 
-#' Log Likelihood Function for Binomial Family with Logistic Link (Internal)
+#' Log Likelihood Function for Binomial Family (Internal)
 #'
 #' @param mle vector of maximum likelihood estimator
 #' @param y vector of binary response values
@@ -23,13 +23,13 @@ find.loglik.gaussian	<-	function(mle, y, nn){
 #' @return numeric value of log likelihood function
 #'
 #'
-find.loglik.logit	<-	function(mle, y, nn){
-  ll1			<-	nn*y*log(mle)
-  ll1[y==0]	<-	0
-  ll2			<-	nn*(1-y)*log(1-mle)
-  ll2[y==1]	<-	0
-  ll			<- 	sum(ll1+ll2)/sum(nn)
-  return(ll)
+find.loglik.binomial	<-	function(mle, y, nn){
+  newy <- y * nn
+  if (!isTRUE(all(newy == floor(newy)))) {
+    warning("y * weights are not all integers, responses will be rounded.")
+    newy <- round(newy)
+  }
+  ll <- sum(dbinom(x = newy, size = nn, prob = mle, log = TRUE))
 }
 
 
@@ -42,7 +42,7 @@ find.loglik.logit	<-	function(mle, y, nn){
 #' @param mle vector of maximum likelihood estimator
 #' @param y vector of numeric response values
 #' @param nn vector of positive integer weights
-#' @param family character string matching the error distribution and link function
+#' @param family character string matching the error distribution or link function
 #'
 #' @return numeric value of log likelihood function
 #'

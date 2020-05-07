@@ -34,6 +34,12 @@
 simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TRUE,
                            method = 'stochastic', multialpha = FALSE, B = 10000,
                            k = 100, kappa0 = 100, tol = 1e-10, max.iter = 20) {
+  if (NCOL(y) == 1) {
+    if (is.character(y)) y <- factor(y)
+    if (is.factor(y)) y <- y != levels(y)[1L]
+  } else {
+    stop("Response 'y' must be a single column.")
+  }
   if (!is.null(weights) && !is.numeric(weights))
     stop("'weights' must be a numeric vector")
   if (!is.null(weights) && any(weights < 0))
