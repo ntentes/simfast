@@ -2,7 +2,12 @@
 #'
 #' @param x numeric \code{matrix} of observed predictor values, with \code{n}
 #'     rows and \code{d} columns
-#' @param y numeric \code{vector} of observed response values, of length \code{n}
+#' @param y numeric \code{vector} of observed response values, of length \code{n}.
+#'     For \code{'binomial'} response, vector can be binary values or a vector of
+#'     proportions, as long as a proper weight vector (a vector of the denominators
+#'     of the proportions, see details) is included. Categorical vectors (character
+#'     strings or factors) will automatically be translated into logical vector with
+#'     the baseline factor level a 'success' (takes value \code{1}).
 #' @param weights optional: vector of positive integer weights, with length
 #'     \code{n}. Takes default value \code{NULL} which uses equal weights.
 #' @param family character string naming the error distribution to be used in
@@ -97,6 +102,11 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'     including categorical predictors, be sure that you set
 #'     \code{options('contrasts')} in your global options to a desired setting. This
 #'     function was designed with the \code{'contr.treatment'} option in mind.
+#'     For \code{'binomial'} response, the vector can be binary values or a vector of
+#'     proportions, as long as a proper weight vector (a vector of the denominators
+#'     of the proportions, see details) is provided. Categorical vectors (character
+#'     strings or factors) will automatically be translated into logical vector with
+#'     the baseline factor level a 'success' (takes value \code{1}).
 #' @param data optional data frame (or object coercible by \code{\link{as.data.frame}})
 #'     to a data frame) containing the variables in the model. Variables are taken
 #'     from \code{environment(formula)} if not found in \code{data}.
