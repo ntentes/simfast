@@ -92,7 +92,7 @@ search.mle		<-	function(x, y, nn, family='gaussian', B=10000, k=100, kappa0=100,
   mle1   <-  mle$mle
   zhat   <-  as.vector(zhat)
   zord   <-  order(zhat)
-  mle1   <-  mle1[zord]
+  mle1   <-  mle1[order(zord)]
   k      <-  length(loc)
 
   return(list('alphahat' = alphahat, 'mle' = mle1, 'zhat' = zhat,
@@ -171,7 +171,7 @@ find.mle	<-	function(x, y, nn, family=gaussian){
   mle	 	 <-	 phat[1,]
   zhat   <-  as.vector(zhat)
   zord   <-  order(zhat)
-  mle    <-  mle[zord]
+  mle    <-  mle[order(zord)]
   k      <-  length(loc)
   maxll  <-  max(llvals)
 
