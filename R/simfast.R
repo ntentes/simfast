@@ -112,8 +112,8 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'     from \code{environment(formula)} if not found in \code{data}.
 #' @param intercept optional boolean, if \code{FALSE} (the default value), then the
 #'     model given by the formula does not include an intercept value (even when
-#'     including a 1, ie. \code{z ~ 1 + x + y} will only include columns for
-#'     \code{x} and \code{y}.
+#'     including a 1, for example: \code{z ~ 1 + x + y} will only include columns for
+#'     \code{x} and \code{y}).
 #' @param weights optional: vector of positive integer weights, with length
 #'     \code{n}. Takes default value \code{NULL} which uses equal weights.
 #' @param family character string naming the error distribution to be used in
