@@ -14,6 +14,9 @@ find.pMLE(alpha, y, x, nn, family)
 \item{x}{matrix of predictor values}
 
 \item{nn}{vector of positive integer weights}
+
+\item{family}{character string naming the error distribution to be used in
+the model}
 }
 \value{
 list of numeric vectors

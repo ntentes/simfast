@@ -4,6 +4,8 @@
 #' @param y vector of reponse values
 #' @param x matrix of predictor values
 #' @param nn vector of positive integer weights
+#' @param family character string naming the error distribution to be used in
+#'     the model
 #'
 #' @return list of numeric vectors
 #'

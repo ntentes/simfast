@@ -37,8 +37,6 @@ search.mle(
 \item{max.iter}{numeric, maximum number of iterations allowed}
 
 \item{print}{boolean, prints number and tolerance at each iteration step}
-
-\item{doplot}{boolean, plots fit if dim(x)=2}
 }
 \value{
 list including N(>=1) alpha index estimates in matrix form, N maximum

@@ -10,7 +10,7 @@
 #' @param tol numeric, convergence tolerance
 #' @param max.iter numeric, maximum number of iterations allowed
 #' @param print boolean, prints number and tolerance at each iteration step
-#' @param doplot boolean, plots fit if dim(x)=2
+#'
 #'
 #' @return list including N(>=1) alpha index estimates in matrix form, N maximum
 #'     likelihood estimates of the response in matrix form, and N single index
@@ -24,7 +24,7 @@ search.mle		<-	function(x, y, nn, family='gaussian', B=10000, k=100, kappa0=100,
   m			<-	length(x[,1])
   d			<-	length(x[1,])
 
-  alpha		<-	matrix(rnorm(d*B), B, d)
+  alpha		<-	matrix(stats::rnorm(d*B), B, d)
   alpha		<-	alpha/apply(alpha,1, function(x) sqrt(sum(x^2)))
 
   loglik		<-	rep(0, B)
@@ -107,12 +107,14 @@ search.mle		<-	function(x, y, nn, family='gaussian', B=10000, k=100, kappa0=100,
 #' @param x matrix of predictor values
 #' @param y vector of reponse values
 #' @param nn vector of positive integer weights
+#' @param family character string naming the error distribution to be used in
+#'     the model
 #'
 #' @return list including alpha index estimate in vector form, maximum
 #'     likelihood estimate of the response in vector form, and single index
 #'     estimate in vector form
 #'
-find.mle	<-	function(x, y, nn, family=gaussian){
+find.mle	<-	function(x, y, nn, family='gaussian'){
 
   m		<-	length(x[,1])
 

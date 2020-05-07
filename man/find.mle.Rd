@@ -5,7 +5,7 @@
 \title{Exact Algorithm for Isotonic Single-Index Regression Fitting
 with 2-D Predictor Space (Internal)}
 \usage{
-find.mle(x, y, nn, family = gaussian)
+find.mle(x, y, nn, family = "gaussian")
 }
 \arguments{
 \item{x}{matrix of predictor values}
@@ -13,6 +13,9 @@ find.mle(x, y, nn, family = gaussian)
 \item{y}{vector of reponse values}
 
 \item{nn}{vector of positive integer weights}
+
+\item{family}{character string naming the error distribution to be used in
+the model}
 }
 \value{
 list including alpha index estimate in vector form, maximum
