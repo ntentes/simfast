@@ -22,6 +22,7 @@
 #'
 mat_pred <- function(object, data, type, rule, fn, interp, link){
   newdata  <- as.matrix(newdata)
+  newdata  <- na.omit(newdata)
   leftlim  <- min(object$indexvals)
   rightlim <- max(object$indexvals)
   oob      <- (object$indexvals < leftlim | object$indexvals > rightlim)
@@ -64,7 +65,8 @@ mat_pred <- function(object, data, type, rule, fn, interp, link){
 #'     none is provided, the original data will be used. If a data frame
 #'     is provided, predictions cannot be made unless \code{returnmodel = TRUE}
 #'     was selected (this is the default value). New numeric matrix or data
-#'     frame must match the structure of the original data.
+#'     frame must match the structure of the original data. Note that
+#'     rows with \code{NA} values will be removed.
 #' @param type character string specifying type of prediction, takes
 #'     value \code{'link'} by default for predictions on the scale of
 #'     the linear predictors, and takes \code{'response'} for predicted
