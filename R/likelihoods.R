@@ -9,7 +9,7 @@
 #'
 #'
 find.loglik.gaussian	<-	function(mle, y, nn) {
-  ll	<-	sum(nn * dnorm(y, mean = mle, log = TRUE))
+  ll	<-	sum(nn * stats::dnorm(y, mean = mle, log = TRUE))
   return(ll)
 }
 
@@ -29,7 +29,7 @@ find.loglik.binomial	<-	function(mle, y, nn) {
     warning("y * weights are not all integers, responses will be rounded.")
     newy <- round(newy)
   }
-  ll <- sum(dbinom(x = newy, size = nn, prob = mle, log = TRUE))
+  ll <- sum(stats::dbinom(x = newy, size = nn, prob = mle, log = TRUE))
   return(ll)
 }
 
@@ -48,7 +48,7 @@ find.loglik.poisson   <-  function(mle, y, nn) {
     warning("Response values are not all integers, responses will be rounded.")
     newy <- round(y)
   }
-  ll <- sum(nn * dpois(x = newy, lambda = mle, log = TRUE))
+  ll <- sum(nn * stats::dpois(x = newy, lambda = mle, log = TRUE))
   return(ll)
 }
 
@@ -66,7 +66,7 @@ find.loglik.gamma   <-  function(mle, y, nn) {
   if (!isTRUE(all(y == abs(y)))) {
     stop("Response values are not all positive, regression cannot contiue.")
   }
-  ll <- sum(nn * dgamma(x = y, shape = mle, log = TRUE))
+  ll <- sum(nn * stats::dgamma(x = y, shape = mle, log = TRUE))
   return(ll)
 }
 
