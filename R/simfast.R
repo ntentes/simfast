@@ -95,9 +95,8 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
   pdim <- NCOL(x)
 
   obj <- list('yhat' = yhat, 'indexvals' = indexvals, 'weights' = weights,
-              'family' = family, 'link' = linkfun, 'deviance' = lldev,
-              'tol' = tol, 'iter' = iter, 'method' = method, 'model' = NULL,
-              'intercept' = NULL)
+              'family' = family, 'link' = linkfun,'tol' = tol, 'iter' = iter,
+              'method' = method, 'model' = NULL, 'intercept' = NULL)
 
   if (multialpha == TRUE) {
     obj <- append(list("alphahat" = fit$alphahat), obj)
