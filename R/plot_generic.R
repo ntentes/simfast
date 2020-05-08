@@ -54,8 +54,7 @@ plot.simfast <- function(x, points = TRUE, weights = TRUE, predictor = FALSE, ..
                    type = 'l', main = "Estimated Response Values vs. Single Index Values",
                    xlab = expression(paste("Single Index Values: ", x^T, hat(alpha))),
                    ylab = '', cex.main = 1, cex.lab = 0.9)
-    graphics::title(ylab=expression(paste("Response Estimates: ", hat(Y), ' = ',
-                                  hat(f),"(",x^T, hat(alpha),")")),
+    graphics::title(ylab=expression(paste("Response Estimates: ", hat(Y))),
                     mgp=c(2.3,1,0), cex.lab=0.9)
     graphics::rug(x$indexvals)
     graphics::points(x = x$indexvals, y = x$yhat, pch = 20,
@@ -65,8 +64,7 @@ plot.simfast <- function(x, points = TRUE, weights = TRUE, predictor = FALSE, ..
                    type = 'l', main = "Estimated Response Values vs. Single Index Values",
                    xlab = expression(paste("Single Index Values: ", x^T, hat(alpha))),
                    ylab = '', cex.main = 1, cex.lab = 0.9)
-    graphics::title(ylab=expression(paste("Response Estimates: ", hat(Y), ' = ',
-                                          hat(f),"(",x^T, hat(alpha),")")),
+    graphics::title(ylab=expression(paste("Response Estimates: ", hat(Y))),
                     mgp=c(2.3,1,0), cex.lab=0.9)
     graphics::rug(x$indexvals)
   }
