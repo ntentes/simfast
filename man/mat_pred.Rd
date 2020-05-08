@@ -4,7 +4,7 @@
 \alias{mat_pred}
 \title{Predict Values from a \code{simfast} object with a matrix (Internal)}
 \usage{
-mat_pred(object, data, type, rule, fn, interp, linv)
+mat_pred(object, data, type, rule, fn, interp, link)
 }
 \arguments{
 \item{object}{an object of class \code{simfast}}
@@ -26,7 +26,7 @@ the closest edge point.}
 
 \item{interp}{extrapolation function passed from \code{predict.simfast}}
 
-\item{linv}{inverse link function passed from \code{predict.simfast}}
+\item{link}{link function passed from \code{predict.simfast}}
 }
 \value{
 a numeric vector

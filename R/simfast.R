@@ -56,7 +56,7 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
     family <- get(family, mode = "function", envir = parent.frame())
   if (is.function(family))
     family <- family()
-  famname <- as.character(substitute(family))[1]
+  famname <- family[[1]]
   if (!famname %in% c('gaussian', 'binomial', 'poisson', 'Gamma')){
     stop('Simfast does not support specified family')
   }
