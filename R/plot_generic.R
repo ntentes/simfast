@@ -1,7 +1,7 @@
-#' Plot the estimated responses and index values of a simfast object, fit by
-#' \code{\link{simfast}}
+#' Plot the estimated responses and index values of a \code{\link{simfast}} object
 #'
-#' @param x an object of class \code{simfast}.
+#'
+#' @param x an object of class \code{\link{simfast}}.
 #' @param points boolean, if \code{TRUE}, plots points on the estimated ridge function.
 #'     Plot will only contain a line representing the estimated ridge function if this
 #'     option is changed to \code{FALSE}.
@@ -10,9 +10,9 @@
 #' @param predictor boolean, if \code{TRUE}, produces a \code{plotly} scatterplot
 #'     of the estimated responses (\code{yhat}) and the observed predictors \code{x}
 #'     (instead of \code{indexvals} on the predictor axes). This is an interactive 3-D
-#'     scatterplot when \code{x} is 2 dimensional and a regular scatterplot otherwise.
-#'     This option will throw an error if \code{plotly} is not installed or \code{x}
-#'     is larger than 2-dimensional.
+#'     scatterplot when \code{x} is 2 dimensional and a regular scatterplot if \code{x}
+#'     is one dimensional. \code{plot.simfast} will throw an error with this option
+#'     selected if \code{plotly} is not installed or \code{x} is larger than 2-dimensional.
 #' @param ... all other arguments passed to \code{\link{plot}}.
 #'
 #' @export
