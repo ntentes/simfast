@@ -13,11 +13,11 @@
 #'     the closest edge point.
 #' @param fn interpolation function passed from \code{predict.simfast}
 #' @param interp extrapolation function passed from \code{predict.simfast}
-#' @param linv inverse link function passed from \code{predict.simfast}
+#' @param link link function passed from \code{predict.simfast}
 #'
 #' @return a numeric vector
 #'
-mat_pred <- function(object, data, type, rule, fn, interp, linv){
+mat_pred <- function(object, data, type, rule, fn, interp, link){
   newdata  <- as.matrix(newdata)
   leftlim  <- min(object$indexvals)
   rightlim <- max(object$indexvals)
@@ -39,10 +39,10 @@ mat_pred <- function(object, data, type, rule, fn, interp, linv){
       }
     } else {
       if (rule == 2) {
-        return(linv(newyhat))
+        return(link(newyhat))
       } else {
         newyhat[oob] <- interp(newivs[oob])
-        return(linv(newyhat))
+        return(link(newyhat))
       }
     }
   }
@@ -75,12 +75,12 @@ mat_pred <- function(object, data, type, rule, fn, interp, linv){
 #'
 #' @examples
 predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){
-  linkinverse <- object$link
+  linkfun <- object$link
   if (missing(newdata)){
     if (type == 'response'){
       return(object$yhat)
     } else {
-      etahat <- linkinverse(object$yhat)
+      etahat <- linkfun(object$yhat)
       return(etahat)
     }
   }
@@ -99,7 +99,7 @@ predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){
   if (is.null(object$model)) {
     if (is.matrix(newdata)){
       predvec <- mat_pred(object = object, data = newdata, type = type, rule = rule,
-                        fn = predfun, interp = interp, linv = linkinverse)
+                        fn = predfun, interp = interp, link = linkfun)
       return(predvec)
     } else {
       stop("If model = NULL in the simfast object, then a numeric matrix
@@ -113,7 +113,7 @@ predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){
     }
     newdata <- stats::model.matrix(object = mm)
     predvec <- mat_pred(object = object, data = newdata, type = type, rule = rule,
-                        fn = predfun, interp = interp, linv = linkinverse)
+                        fn = predfun, interp = interp, link = linkfun)
     return(predvec)
   }
 }

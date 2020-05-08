@@ -64,8 +64,8 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
     print(family)
     stop("Specified family cannot be found.")
   }
-  linkinv <- family$linkinv
-  if (!is.function(linkinv))
+  linkfun <- family$linkfun
+  if (!is.function(linkfun))
     stop("Cannot find specified link function")
   x <- as.matrix(x)
   if (!is.numeric(x)){
@@ -95,7 +95,7 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
   pdim <- NCOL(x)
 
   obj <- list('yhat' = yhat, 'indexvals' = indexvals, 'weights' = weights,
-              'family' = family, 'link' = linkinv, 'deviance' = lldev,
+              'family' = family, 'link' = linkfun, 'deviance' = lldev,
               'tol' = tol, 'iter' = iter, 'method' = method, 'model' = NULL,
               'intercept' = NULL)
 
@@ -196,9 +196,7 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL,
   if (returnmodel == TRUE){
     simfit[['model']] <- mm
   }
-  if (intercept == FALSE){
-    simfit[['intercept']] <- FALSE
-  }
+  simfit[['intercept']] <- intercept
   return(simfit)
 }
 
