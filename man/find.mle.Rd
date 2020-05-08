@@ -14,8 +14,7 @@ find.mle(x, y, nn, family = "gaussian")
 
 \item{nn}{vector of positive integer weights}
 
-\item{family}{character string naming the error distribution to be used in
-the model}
+\item{family}{\code{\link{family}} object passed by \code{simfast}}
 }
 \value{
 list including alpha index estimate in vector form, maximum

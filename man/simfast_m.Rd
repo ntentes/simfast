@@ -23,7 +23,12 @@ simfast_m(
 \item{x}{numeric \code{matrix} of observed predictor values, with \code{n}
 rows and \code{d} columns}
 
-\item{y}{numeric \code{vector} of observed response values, of length \code{n}}
+\item{y}{numeric \code{vector} of observed response values, of length \code{n}.
+For \code{'binomial'} response, vector can be binary values or a vector of
+proportions, as long as a proper weight vector (a vector of the denominators
+of the proportions, see details) is included. Categorical vectors (character
+strings or factors) will automatically be translated into logical vector with
+the baseline factor level a 'success' (takes value \code{1}).}
 
 \item{weights}{optional: vector of positive integer weights, with length
 \code{n}. Takes default value \code{NULL} which uses equal weights.}

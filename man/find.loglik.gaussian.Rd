@@ -2,12 +2,12 @@
 % Please edit documentation in R/likelihoods.R
 \name{find.loglik.gaussian}
 \alias{find.loglik.gaussian}
-\title{Log Likelihood Function for Gaussian Family with Indentity Link (Internal)}
+\title{Log Likelihood Function for Gaussian Family (Internal)}
 \usage{
 find.loglik.gaussian(mle, y, nn)
 }
 \arguments{
-\item{mle}{vector of maximum likelihood estimator}
+\item{mle}{vector, maximum likelihood estimator}
 
 \item{y}{vector of numeric response values}
 
@@ -17,5 +17,5 @@ find.loglik.gaussian(mle, y, nn)
 numeric value of log likelihood function
 }
 \description{
-Log Likelihood Function for Gaussian Family with Indentity Link (Internal)
+Log Likelihood Function for Gaussian Family (Internal)
 }

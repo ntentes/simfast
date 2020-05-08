@@ -15,8 +15,7 @@ find.pMLE(alpha, y, x, nn, family)
 
 \item{nn}{vector of positive integer weights}
 
-\item{family}{character string naming the error distribution to be used in
-the model}
+\item{family}{\code{\link{family}} object passed by \code{simfast}}
 }
 \value{
 list of numeric vectors

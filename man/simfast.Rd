@@ -28,7 +28,12 @@ description of the model to be fitted. By default, intercepts are NOT
 included, so change argument \code{intercept = TRUE} to include one. NOTE: When
 including categorical predictors, be sure that you set
 \code{options('contrasts')} in your global options to a desired setting. This
-function was designed with the \code{'contr.treatment'} option in mind.}
+function was designed with the \code{'contr.treatment'} option in mind.
+For \code{'binomial'} response, the vector can be binary values or a vector of
+proportions, as long as a proper weight vector (a vector of the denominators
+of the proportions, see details) is provided. Categorical vectors (character
+strings or factors) will automatically be translated into logical vector with
+the baseline factor level a 'success' (takes value \code{1}).}
 
 \item{data}{optional data frame (or object coercible by \code{\link{as.data.frame}})
 to a data frame) containing the variables in the model. Variables are taken
@@ -36,8 +41,8 @@ from \code{environment(formula)} if not found in \code{data}.}
 
 \item{intercept}{optional boolean, if \code{FALSE} (the default value), then the
 model given by the formula does not include an intercept value (even when
-including a 1, ie. \code{z ~ 1 + x + y} will only include columns for
-\code{x} and \code{y}.}
+including a 1, for example: \code{z ~ 1 + x + y} will only include columns for
+\code{x} and \code{y}).}
 
 \item{weights}{optional: vector of positive integer weights, with length
 \code{n}. Takes default value \code{NULL} which uses equal weights.}
@@ -48,7 +53,8 @@ the model, \code{'gaussian'} by default. Other options include
 Other options coming soon.}
 
 \item{returnmodel}{optional boolean that when \code{TRUE} (the default value)
-attaches the \code{\link{model.frame}} object to the simfast object.}
+attaches the \code{\link{model.frame}} object to the simfast object. Leave
+as \code{TRUE} to properly use the \code{\link{predict}} function.}
 
 \item{returndata}{optional boolean that when \code{TRUE} (the default value)
 returns the predictor matrix and response vector in the simfast object.}

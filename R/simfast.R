@@ -52,6 +52,25 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
   if (is.null(weights)) {
     weights <- rep(1, length(y))
   }
+  if (is.character(family))
+    family <- get(family, mode = "function", envir = parent.frame())
+  if (is.function(family))
+    family <- family()
+  famname <- as.character(substitute(family))[1]
+  if (!famname %in% c('gaussian', 'binomial', 'poisson', 'Gamma')){
+    stop('Simfast does not support specified family')
+  }
+  if (is.null(family$family)) {
+    print(family)
+    stop("Specified family cannot be found.")
+  }
+  linkinv <- family$linkinv
+  if (!is.function(linkinv))
+    stop("Cannot find specified link function")
+  x <- as.matrix(x)
+  if (!is.numeric(x)){
+    stop('Predictor matrix must be numeric.')
+  }
   if (method == 'exact') {
     if (NCOL(x) == 2) {
       fit <- find.mle(x, y, nn = weights, family = family)
@@ -73,10 +92,12 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
   tol  <- fit$tol
   yhat <- firstrow(fit$mle)
   indexvals <- firstrow(fit$zhat)
+  pdim <- NCOL(x)
 
-  obj <- list('yhat' = yhat, 'indexvals' = indexvals,
-              'weights' = weights, 'family' = family, 'deviance' = lldev,
-              'tol' = tol, 'iter' = iter, 'method' = method, 'model' = NULL)
+  obj <- list('yhat' = yhat, 'indexvals' = indexvals, 'weights' = weights,
+              'family' = family, 'link' = linkinv, 'deviance' = lldev,
+              'tol' = tol, 'iter' = iter, 'method' = method, 'model' = NULL,
+              'intercept' = NULL)
 
   if (multialpha == TRUE) {
     obj <- append(list("alphahat" = fit$alphahat), obj)
@@ -121,7 +142,8 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'     \code{'binomial'} (with logit link, equivalent to calling \code{'logit'}).
 #'     Other options coming soon.
 #' @param returnmodel optional boolean that when \code{TRUE} (the default value)
-#'     attaches the \code{\link{model.frame}} object to the simfast object.
+#'     attaches the \code{\link{model.frame}} object to the simfast object. Leave
+#'     as \code{TRUE} to properly use the \code{\link{predict}} function.
 #' @param returndata optional boolean that when \code{TRUE} (the default value)
 #'     returns the predictor matrix and response vector in the simfast object.
 #' @param method when \code{x} has \code{d=2} columns, method can take \code{'exact'}
@@ -174,6 +196,9 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL,
                       B = B, k = k, kappa0 = kappa0, tol = tol, max.iter = max.iter)
   if (returnmodel == TRUE){
     simfit[['model']] <- mm
+  }
+  if (intercept == FALSE){
+    simfit[['intercept']] <- FALSE
   }
   return(simfit)
 }

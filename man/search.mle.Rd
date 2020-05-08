@@ -24,7 +24,7 @@ search.mle(
 
 \item{nn}{vector of positive integer weights}
 
-\item{family}{character string matching the error distribution and link function}
+\item{family}{\code{\link{family}} object passed by \code{simfast}}
 
 \item{B}{positive integer, number of index vectors to test}
 

@@ -7,13 +7,13 @@
 find.loglik(mle, y, nn, family)
 }
 \arguments{
-\item{mle}{vector of maximum likelihood estimator}
+\item{mle}{vector, maximum likelihood estimator}
 
 \item{y}{vector of numeric response values}
 
 \item{nn}{vector of positive integer weights}
 
-\item{family}{character string matching the error distribution and link function}
+\item{family}{\code{\link{family}} object passed by \code{simfast}}
 }
 \value{
 numeric value of log likelihood function
