@@ -64,6 +64,22 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
     print(family)
     stop("Specified family cannot be found.")
   }
+  if (famname == 'binomial') {
+    newy <- y * weights
+    if (!isTRUE(all.equal(newy, round(newy)))) {
+      warning("y*weights are not all within integer tolerance")
+    }
+  }
+  if (famname == 'poisson') {
+    if (!isTRUE(all.equal(y, round(y)))) {
+      warning("count response values are not all within integer tolerance")
+    }
+  }
+  if (famname == 'Gamma') {
+    if (!isTRUE(all.equal(y, abs(y)))) {
+      stop("Response values are not all positive, regression cannot continue.")
+    }
+  }
   linkfun <- family$linkfun
   if (!is.function(linkfun))
     stop("Cannot find specified link function")

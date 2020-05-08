@@ -24,13 +24,11 @@ find.loglik.gaussian	<-	function(mle, y, nn) {
 #'
 #'
 find.loglik.binomial	<-	function(mle, y, nn) {
-  newy <- y * nn
-  if (!isTRUE(all.equal(newy, round(newy)))) {
-    warning("y*weights are not all within integer tolerance,
-            values of y*weights will be rounded.")
-    newy <- round(newy)
-  }
-  ll <- sum(stats::dbinom(x = newy, size = nn, prob = mle, log = TRUE))
+  ll1			<-	nn*y*log(mle)
+  ll1[y==0]	<-	0
+  ll2			<-	nn*(1-y)*log(1-mle)
+  ll2[y==1]	<-	0
+  ll			<- 	sum(ll1+ll2)
   return(ll)
 }
 
@@ -45,12 +43,7 @@ find.loglik.binomial	<-	function(mle, y, nn) {
 #'
 #'
 find.loglik.poisson   <-  function(mle, y, nn) {
-  if (!isTRUE(all.equal(y, round(y)))) {
-    warning("Response values are not all within integer tolerance,
-            responses will be rounded.")
-    newy <- round(y)
-  }
-  ll <- sum(nn * stats::dpois(x = newy, lambda = mle, log = TRUE))
+  ll <- sum(nn * (y * log(mle) - mle))
   return(ll)
 }
 
@@ -65,9 +58,6 @@ find.loglik.poisson   <-  function(mle, y, nn) {
 #'
 #'
 find.loglik.gamma   <-  function(mle, y, nn) {
-  if (!isTRUE(all.equal(y, abs(y)))) {
-    stop("Response values are not all positive, regression cannot continue.")
-  }
   ll <- sum(nn * stats::dgamma(x = y, shape = mle, log = TRUE))
   return(ll)
 }
