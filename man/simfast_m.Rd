@@ -30,13 +30,15 @@ of the proportions, see details) is included. Categorical vectors (character
 strings or factors) will automatically be translated into logical vector with
 the baseline factor level a 'success' (takes value \code{1}).}
 
-\item{weights}{optional: vector of positive integer weights, with length
+\item{weights}{optional vector of positive integer weights, with length
 \code{n}. Takes default value \code{NULL} which uses equal weights.}
 
-\item{family}{character string naming the error distribution to be used in
-the model, \code{'gaussian'} by default. Other options include
-\code{'binomial'} (with logit link, equivalent to calling \code{'logit'}).
-Other options coming soon.}
+\item{family}{a choice of the error distribution and link function to
+be used in the model. This can be a character string naming a family
+function, a family function or the result of a call to a family function.
+Currently supporting any of \code{\link{gaussian}, \link{binomial},
+    \link{poisson},} and \code{\link{Gamma}}. The canonical link function is used
+by default, but all link functions available for these families are supported.}
 
 \item{returndata}{optional boolean that when \code{TRUE} (the default value)
 returns the predictor matrix and response vector in the simfast object.}
@@ -64,8 +66,40 @@ Will give value of \code{0} if \code{'exact'} is used.}
 \code{method = 'stochastic'}}
 }
 \value{
-an object of class \code{simfast}.
+an object of class \code{simfast}, with the following structure:
+\describe{
+\item{\code{x}}{if \code{returndata = TRUE}, this is the predictor matrix used to
+fit the model, otherwise it is \code{NULL}.}
+\item{\code{y}}{if \code{returndata = TRUE}, this is the response vector used to
+fit the model, otherwise it is \code{NULL}.}
+\item{\code{alphahat}}{\code{alpha} value estimated by the model fit, will return a
+matrix of multiple vectors if \code{multialpha = TRUE}}
+\item{\code{yhat}}{vector of estimated response values}
+\item{\code{indexvals}}{vector of estimated single index values, the matrix product
+of \code{x} and \code{alphahat}}
+\item{\code{weights}}{vector of the integer weights used in the model fit}
+\item{\code{family}}{the \code{\link{family}} function provided to \code{simfast_m}}
+\item{\code{link}}{the link function proposed by \code{family}}
+\item{\code{tol}}{numeric convergence tolerance acheived during fitting with
+\code{method = 'stochastic'}. For \code{method = 'exact'}, this is \code{0}.}
+\item{\code{iter}}{number of iterations used to acheieve convergence. For
+\code{method = 'exact'}, this is \code{1}.}
+\item{\code{method}}{\code{method} used for fitting the model}
+\item{\code{model}}{returns \code{NULL} when calling \code{simfast_m}}
+\item{\code{intercept}}{returns \code{NULL} when calling \code{simfast_m}}
+}
 }
 \description{
 Fitting isotonic generalized single-index regression models via maximum likelihood
+with support for estimating response values with \code{\link{predict}} and plotting
+values with \code{\link{plot}}. Also includes support for built-in regression families
+(see Arguments), and formula support through the wrapper \code{\link{simfast}}.
+}
+\seealso{
+\code{\link{simfast}} for formula support.
+}
+\author{
+\preformatted{Hanna Jankowski <hkj@yorku.ca>
+Konstantinos Ntentes <kntentes@yorku.ca> (maintainer)
+}
 }

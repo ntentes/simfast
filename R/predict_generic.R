@@ -17,6 +17,9 @@
 #'
 #' @return a numeric vector
 #'
+#' @noRd
+#' @keywords internal
+#'
 mat_pred <- function(object, data, type, rule, fn, interp, link){
   newdata  <- as.matrix(newdata)
   leftlim  <- min(object$indexvals)
@@ -53,6 +56,9 @@ mat_pred <- function(object, data, type, rule, fn, interp, link){
 
 #' Predict values of a \code{simfast} object with a data frame or a matrix
 #'
+#' Predict values of a \code{simfast} object with a data frame or a matrix.
+#' Can also be called by running \code{\link{predict}} on \code{simfast} object.
+#'
 #' @param object an object of class \code{simfast}
 #' @param newdata optional numeric matrix or data frame of new data. If
 #'     none is provided, the original data will be used. If a data frame
@@ -72,6 +78,11 @@ mat_pred <- function(object, data, type, rule, fn, interp, link){
 #'
 #' @return a numeric vector of the specified prediction values
 #' @export
+#'
+#' @author
+#'     Hanna Jankowski <hkj@yorku.ca>
+#'     Konstantinos Ntentes <kntentes@yorku.ca> (maintainer)
+#'
 #'
 #' @examples
 predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){

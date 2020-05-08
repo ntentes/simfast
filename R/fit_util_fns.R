@@ -8,6 +8,9 @@
 #'
 #' @return list of numeric vectors
 #'
+#' @noRd
+#' @keywords internal
+#'
 find.pMLE	<- function(alpha, y, x, nn, family){
 
 	delta			<-	x %*% alpha
@@ -24,6 +27,9 @@ find.pMLE	<- function(alpha, y, x, nn, family){
 #' @param z numeric vector of size 2
 #'
 #' @return numeric, angle
+#'
+#' @noRd
+#' @keywords internal
 #'
 #'
 my.inv	<-	function(z){
@@ -44,6 +50,8 @@ my.inv	<-	function(z){
 #'
 #' @return numeric vector of index locations
 #'
+#' @noRd
+#' @keywords internal
 #'
 getkmax		<-	function(x, k){
 
@@ -60,6 +68,9 @@ getkmax		<-	function(x, k){
 #' @param x a matrix or vector
 #'
 #' @return a vector (first row of the matrix)
+#'
+#' @noRd
+#' @keywords internal
 #'
 firstrow <- function(x){
   if (is.matrix(x)){

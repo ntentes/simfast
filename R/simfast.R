@@ -1,5 +1,11 @@
 #' Fitting isotonic generalized single-index regression models via maximum likelihood
 #'
+#'
+#' Fitting isotonic generalized single-index regression models via maximum likelihood
+#' with support for estimating response values with \code{\link{predict}} and plotting
+#' values with \code{\link{plot}}. Also includes support for built-in regression families
+#' (see Arguments), and formula support through the wrapper \code{\link{simfast}}.
+#'
 #' @param x numeric \code{matrix} of observed predictor values, with \code{n}
 #'     rows and \code{d} columns
 #' @param y numeric \code{vector} of observed response values, of length \code{n}.
@@ -8,12 +14,14 @@
 #'     of the proportions, see details) is included. Categorical vectors (character
 #'     strings or factors) will automatically be translated into logical vector with
 #'     the baseline factor level a 'success' (takes value \code{1}).
-#' @param weights optional: vector of positive integer weights, with length
+#' @param weights optional vector of positive integer weights, with length
 #'     \code{n}. Takes default value \code{NULL} which uses equal weights.
-#' @param family character string naming the error distribution to be used in
-#'     the model, \code{'gaussian'} by default. Other options include
-#'     \code{'binomial'} (with logit link, equivalent to calling \code{'logit'}).
-#'     Other options coming soon.
+#' @param family a choice of the error distribution and link function to
+#'     be used in the model. This can be a character string naming a family
+#'     function, a family function or the result of a call to a family function.
+#'     Currently supporting any of \code{\link{gaussian}, \link{binomial},
+#'     \link{poisson},} and \code{\link{Gamma}}. The canonical link function is used
+#'     by default, but all link functions available for these families are supported.
 #' @param returndata optional boolean that when \code{TRUE} (the default value)
 #'     returns the predictor matrix and response vector in the simfast object.
 #' @param method when \code{x} has \code{d=2} columns, method can take \code{'exact'}
@@ -32,8 +40,39 @@
 #' @param max.iter positive integer limiting number of iterations for
 #'     \code{method = 'stochastic'}
 #'
-#' @return an object of class \code{simfast}.
+#'
+#' @return an object of class \code{simfast}, with the following structure:
+#' \describe{
+#'  \item{\code{x}}{if \code{returndata = TRUE}, this is the predictor matrix used to
+#'       fit the model, otherwise it is \code{NULL}.}
+#'  \item{\code{y}}{if \code{returndata = TRUE}, this is the response vector used to
+#'       fit the model, otherwise it is \code{NULL}.}
+#'  \item{\code{alphahat}}{\code{alpha} value estimated by the model fit, will return a
+#'       matrix of multiple vectors if \code{multialpha = TRUE}}
+#'  \item{\code{yhat}}{vector of estimated response values}
+#'  \item{\code{indexvals}}{vector of estimated single index values, the matrix product
+#'      of \code{x} and \code{alphahat}}
+#'  \item{\code{weights}}{vector of the integer weights used in the model fit}
+#'  \item{\code{family}}{the \code{\link{family}} function provided to \code{simfast_m}}
+#'  \item{\code{link}}{the link function proposed by \code{family}}
+#'  \item{\code{tol}}{numeric convergence tolerance acheived during fitting with
+#'      \code{method = 'stochastic'}. For \code{method = 'exact'}, this is \code{0}.}
+#'  \item{\code{iter}}{number of iterations used to acheieve convergence. For
+#'      \code{method = 'exact'}, this is \code{1}.}
+#'  \item{\code{method}}{\code{method} used for fitting the model}
+#'  \item{\code{model}}{returns \code{NULL} when calling \code{simfast_m}}
+#'  \item{\code{intercept}}{returns \code{NULL} when calling \code{simfast_m}}
+#' }
+#'
+#'
+#' @seealso \code{\link{simfast}} for formula support.
+#'
 #' @export
+#' @md
+#'
+#' @author
+#'     Hanna Jankowski <hkj@yorku.ca>
+#'     Konstantinos Ntentes <kntentes@yorku.ca> (maintainer)
 #'
 #' @examples
 simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TRUE,
@@ -57,7 +96,7 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
   if (is.function(family))
     family <- family()
   famname <- family[[1]]
-  if (!famname %in% c('gaussian', 'binomial', 'poisson', 'Gamma')){
+  if (!famname %in% c('gaussian', 'binomial', 'poisson', 'Gamma')) {
     stop('Simfast does not support specified family')
   }
   if (is.null(family$family)) {
@@ -120,8 +159,10 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
     obj <- append(list("alphahat" = firstrow(fit$alphahat)), obj)
   }
 
-  if (returndata == TRUE){
+  if (returndata == TRUE) {
     obj <- append(list('x' = x, 'y' = y), obj)
+  } else {
+    obj <- append(list('x' = NULL, 'y' = NULL), obj)
   }
 
   class(obj) <- 'simfast'
@@ -131,6 +172,11 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 
 #' Fitting isotonic generalized single-index regression models via maximum likelihood
 #' with formula support
+#'
+#' Fitting isotonic generalized single-index regression models via maximum likelihood
+#' with support for estimating response values with \code{\link{predict}} and plotting
+#' values with \code{\link{plot}}. Also includes support for formula objects, data frames,
+#' and built-in regression families (see Arguments).
 #'
 #' @param formula an object of class \code{\link{formula}}, which is a symbolic
 #'     description of the model to be fitted. By default, intercepts are NOT
@@ -143,19 +189,21 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'     of the proportions, see details) is provided. Categorical vectors (character
 #'     strings or factors) will automatically be translated into logical vector with
 #'     the baseline factor level a 'success' (takes value \code{1}).
-#' @param data optional data frame (or object coercible by \code{\link{as.data.frame}})
-#'     to a data frame) containing the variables in the model. Variables are taken
-#'     from \code{environment(formula)} if not found in \code{data}.
+#' @param data optional data frame (or object coercible to a data frame by
+#'     \code{\link{as.data.frame}}) containing the variables in the model. Variables
+#'     are taken from \code{environment(formula)} if not found in \code{data}.
 #' @param intercept optional boolean, if \code{FALSE} (the default value), then the
 #'     model given by the formula does not include an intercept value (even when
 #'     including a 1, for example: \code{z ~ 1 + x + y} will only include columns for
 #'     \code{x} and \code{y}).
-#' @param weights optional: vector of positive integer weights, with length
+#' @param weights optional vector of positive integer weights, with length
 #'     \code{n}. Takes default value \code{NULL} which uses equal weights.
-#' @param family character string naming the error distribution to be used in
-#'     the model, \code{'gaussian'} by default. Other options include
-#'     \code{'binomial'} (with logit link, equivalent to calling \code{'logit'}).
-#'     Other options coming soon.
+#' @param family a choice of the error distribution and link function to
+#'     be used in the model. This can be a character string naming a family
+#'     function, a family function or the result of a call to a family function.
+#'     Currently supporting any of \code{\link{gaussian}, \link{binomial},
+#'     \link{poisson},} and \code{\link{Gamma}}. The canonical link function is used
+#'     by default, but all link functions available for these families are supported.
 #' @param returnmodel optional boolean that when \code{TRUE} (the default value)
 #'     attaches the \code{\link{model.frame}} object to the simfast object. Leave
 #'     as \code{TRUE} to properly use the \code{\link{predict}} function.
@@ -177,8 +225,40 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #' @param max.iter positive integer limiting number of iterations for
 #'     \code{method = 'stochastic'}
 #'
-#' @return an object of class \code{simfast}.
+#' @return an object of class \code{simfast}, with the following structure:
+#' \describe{
+#'  \item{\code{x}}{if \code{returndata = TRUE}, this is the model matrix used to
+#'       fit the model, otherwise it is \code{NULL}.}
+#'  \item{\code{y}}{if \code{returndata = TRUE}, this is the response vector used to
+#'       fit the model, otherwise it is \code{NULL}.}
+#'  \item{\code{alphahat}}{\code{alpha} value estimated by the model fit, will return a
+#'       matrix of multiple vectors if \code{multialpha = TRUE}}
+#'  \item{\code{yhat}}{vector of estimated response values}
+#'  \item{\code{indexvals}}{vector of estimated single index values, the matrix product
+#'      of \code{x} and \code{alphahat}}
+#'  \item{\code{weights}}{vector of the integer weights used in the model fit}
+#'  \item{\code{family}}{the \code{\link{family}} function provided to \code{simfast_m}}
+#'  \item{\code{link}}{the link function proposed by \code{family}}
+#'  \item{\code{tol}}{numeric convergence tolerance acheived during fitting with
+#'      \code{method = 'stochastic'}. For \code{method = 'exact'}, this is \code{0}.}
+#'  \item{\code{iter}}{number of iterations used to acheieve convergence. For
+#'      \code{method = 'exact'}, this is \code{1}.}
+#'  \item{\code{method}}{\code{method} used for fitting the model}
+#'  \item{\code{model}}{the \code{\link{model.frame}} generated by the formula object
+#'      which is used to generate the \code{\link{model.matrix}} and
+#'      \code{\link{model.response}} to pass to \code{simfast_m}}
+#'  \item{\code{intercept}}{the \code{intercept} rule selected in the argument}
+#' }
+#'
+#'
+#' @seealso \code{\link{simfast_m}} for providing model matrices instead of a formula.
+#'
 #' @export
+#' @md
+#'
+#' @author
+#'     Hanna Jankowski <hkj@yorku.ca>
+#'     Konstantinos Ntentes <kntentes@yorku.ca> (maintainer)
 #'
 #' @examples
 simfast <- function(formula, data, intercept = FALSE, weights = NULL,

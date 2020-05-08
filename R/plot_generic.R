@@ -1,6 +1,10 @@
 #' Plot the estimated responses and index values of a \code{\link{simfast}} object
 #'
 #'
+#' Plot the estimated responses and index values of a \code{\link{simfast}} object.
+#' Can also be called by running \code{\link{plot}} on a \code{simfast} object.
+#'
+#'
 #' @param x an object of class \code{\link{simfast}}.
 #' @param points boolean, if \code{TRUE}, plots points on the estimated ridge function.
 #'     Plot will only contain a line representing the estimated ridge function if this
@@ -16,6 +20,10 @@
 #' @param ... all other arguments passed to \code{\link{plot}}.
 #'
 #' @export
+#'
+#' @author
+#'     Hanna Jankowski <hkj@yorku.ca>
+#'     Konstantinos Ntentes <kntentes@yorku.ca> (maintainer)
 #'
 #' @examples
 plot.simfast <- function(x, points = TRUE, weights = TRUE, predictor = FALSE, ...){

@@ -16,7 +16,8 @@
 #'     likelihood estimates of the response in matrix form, and N single index
 #'     estimates in matrix form
 #'
-#'
+#' @noRd
+#' @keywords internal
 #'
 search.mle		<-	function(x, y, nn, family='gaussian', B=10000, k=100, kappa0=100,
                         tol=1e-10, max.iter=20, print=TRUE){
@@ -112,6 +113,9 @@ search.mle		<-	function(x, y, nn, family='gaussian', B=10000, k=100, kappa0=100,
 #' @return list including alpha index estimate in vector form, maximum
 #'     likelihood estimate of the response in vector form, and single index
 #'     estimate in vector form
+#'
+#' @noRd
+#' @keywords internal
 #'
 find.mle	<-	function(x, y, nn, family='gaussian'){
 

@@ -32,5 +32,10 @@ the closest edge point.}
 a numeric vector of the specified prediction values
 }
 \description{
-Predict values of a \code{simfast} object with a data frame or a matrix
+Predict values of a \code{simfast} object with a data frame or a matrix.
+Can also be called by running \code{\link{predict}} on \code{simfast} object.
+}
+\author{
+Hanna Jankowski <hkj@yorku.ca>
+    Konstantinos Ntentes <kntentes@yorku.ca> (maintainer)
 }

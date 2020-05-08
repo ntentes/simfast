@@ -7,6 +7,9 @@
 #'
 #' @return numeric value of log likelihood function
 #'
+#' @noRd
+#' @keywords internal
+#'
 #'
 find.loglik.gaussian	<-	function(mle, y, nn) {
   ll	<-	sum(nn * stats::dnorm(y, mean = mle, log = TRUE))
@@ -21,6 +24,9 @@ find.loglik.gaussian	<-	function(mle, y, nn) {
 #' @param nn vector of positive integer weights
 #'
 #' @return numeric value of log likelihood function
+#'
+#' @noRd
+#' @keywords internal
 #'
 #'
 find.loglik.binomial	<-	function(mle, y, nn) {
@@ -41,6 +47,9 @@ find.loglik.binomial	<-	function(mle, y, nn) {
 #'
 #' @return numeric value of log likelihood function
 #'
+#' @noRd
+#' @keywords internal
+#'
 #'
 find.loglik.poisson   <-  function(mle, y, nn) {
   ll <- sum(nn * (y * log(mle) - mle))
@@ -56,6 +65,9 @@ find.loglik.poisson   <-  function(mle, y, nn) {
 #'
 #' @return numeric value of log likelihood function
 #'
+#'
+#' @noRd
+#' @keywords internal
 #'
 find.loglik.gamma   <-  function(mle, y, nn) {
   ll <- sum(nn * stats::dgamma(x = y, shape = mle, log = TRUE))
@@ -75,6 +87,9 @@ find.loglik.gamma   <-  function(mle, y, nn) {
 #' @param family \code{\link{family}} object passed by \code{simfast}
 #'
 #' @return numeric value of log likelihood function
+#'
+#' @noRd
+#' @keywords internal
 #'
 find.loglik <- function(mle, y, nn, family) {
   if (family == 'gaussian') {
