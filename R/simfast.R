@@ -71,8 +71,8 @@
 #' @md
 #'
 #' @author
-#'     Hanna Jankowski <hkj@yorku.ca>
-#'     Konstantinos Ntentes <kntentes@yorku.ca> (maintainer)
+#'     Hanna Jankowski <hkj@@yorku.ca>
+#'     Konstantinos Ntentes <kntentes@@yorku.ca> (maintainer)
 #'
 #' @examples
 simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TRUE,
@@ -257,8 +257,8 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #' @md
 #'
 #' @author
-#'     Hanna Jankowski <hkj@yorku.ca>
-#'     Konstantinos Ntentes <kntentes@yorku.ca> (maintainer)
+#'     Hanna Jankowski \email{hkj@@yorku.ca}
+#'     Konstantinos Ntentes \email{kntentes@@yorku.ca} (maintainer)
 #'
 #' @examples
 simfast <- function(formula, data, intercept = FALSE, weights = NULL,

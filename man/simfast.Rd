@@ -119,7 +119,7 @@ and built-in regression families (see Arguments).
 \code{\link{simfast_m}} for providing model matrices instead of a formula.
 }
 \author{
-\preformatted{Hanna Jankowski <hkj@yorku.ca>
-Konstantinos Ntentes <kntentes@yorku.ca> (maintainer)
+\preformatted{Hanna Jankowski \email{hkj@yorku.ca}
+Konstantinos Ntentes \email{kntentes@yorku.ca} (maintainer)
 }
 }

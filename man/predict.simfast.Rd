@@ -13,12 +13,13 @@
 none is provided, the original data will be used. If a data frame
 is provided, predictions cannot be made unless \code{returnmodel = TRUE}
 was selected (this is the default value). New numeric matrix or data
-frame must match the structure of the original data.}
+frame must match the structure of the original data. Note that
+rows with \code{NA} values will be removed.}
 
 \item{type}{character string specifying type of prediction, takes
 value \code{'link'} by default for predictions on the scale of
 the linear predictors, and takes \code{'response'} for predicted
-response values (with selected link function applied).}
+response values.}
 
 \item{rule}{integer that describes how to handle predictor values
 outside the range of the original data. By default, the value
@@ -36,6 +37,6 @@ Predict values of a \code{simfast} object with a data frame or a matrix.
 Can also be called by running \code{\link{predict}} on \code{simfast} object.
 }
 \author{
-Hanna Jankowski <hkj@yorku.ca>
-    Konstantinos Ntentes <kntentes@yorku.ca> (maintainer)
+Hanna Jankowski \email{hkj@yorku.ca}
+    Konstantinos Ntentes \email{kntentes@yorku.ca} (maintainer)
 }

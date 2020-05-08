@@ -70,7 +70,7 @@ mat_pred <- function(object, data, type, rule, fn, interp, link){
 #' @param type character string specifying type of prediction, takes
 #'     value \code{'link'} by default for predictions on the scale of
 #'     the linear predictors, and takes \code{'response'} for predicted
-#'     response values (with selected link function applied).
+#'     response values.
 #' @param rule integer that describes how to handle predictor values
 #'     outside the range of the original data. By default, the value
 #'     is \code{1}, which uses linear extrapolation to estimate outside
@@ -82,8 +82,8 @@ mat_pred <- function(object, data, type, rule, fn, interp, link){
 #' @export
 #'
 #' @author
-#'     Hanna Jankowski <hkj@yorku.ca>
-#'     Konstantinos Ntentes <kntentes@yorku.ca> (maintainer)
+#'     Hanna Jankowski \email{hkj@@yorku.ca}
+#'     Konstantinos Ntentes \email{kntentes@@yorku.ca} (maintainer)
 #'
 #'
 #' @examples

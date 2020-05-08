@@ -30,6 +30,6 @@ Plot the estimated responses and index values of a \code{\link{simfast}} object.
 Can also be called by running \code{\link{plot}} on a \code{simfast} object.
 }
 \author{
-Hanna Jankowski <hkj@yorku.ca>
-    Konstantinos Ntentes <kntentes@yorku.ca> (maintainer)
+Hanna Jankowski \email{hkj@yorku.ca}
+    Konstantinos Ntentes \email{kntentes@yorku.ca} (maintainer)
 }

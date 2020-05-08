@@ -22,8 +22,8 @@
 #' @export
 #'
 #' @author
-#'     Hanna Jankowski <hkj@yorku.ca>
-#'     Konstantinos Ntentes <kntentes@yorku.ca> (maintainer)
+#'     Hanna Jankowski \email{hkj@@yorku.ca}
+#'     Konstantinos Ntentes \email{kntentes@@yorku.ca} (maintainer)
 #'
 #' @examples
 plot.simfast <- function(x, points = TRUE, weights = TRUE, predictor = FALSE, ...){
