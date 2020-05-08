@@ -102,8 +102,15 @@ predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){
                         fn = predfun, interp = interp, link = linkfun)
       return(predvec)
     } else {
-      stop("If model = NULL in the simfast object, then a numeric matrix
+      newdata <- as.matrix(newdata)
+      if (!is.numeric(newdata)){
+        stop("If model = NULL in the simfast object, then a numeric matrix
            must be provided, not a data frame.")
+      } else {
+        predvec <- mat_pred(object = object, data = newdata, type = type, rule = rule,
+                            fn = predfun, interp = interp, link = linkfun)
+        return(predvec)
+      }
     }
   } else {
     mf <- object$model
