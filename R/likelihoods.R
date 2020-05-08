@@ -25,8 +25,9 @@ find.loglik.gaussian	<-	function(mle, y, nn) {
 #'
 find.loglik.binomial	<-	function(mle, y, nn) {
   newy <- y * nn
-  if (!isTRUE(all(newy == floor(newy)))) {
-    warning("y * weights are not all integers, responses will be rounded.")
+  if (!isTRUE(all.equal(newy, round(newy)))) {
+    warning("y*weights are not all within integer tolerance,
+            values of y*weights will be rounded.")
     newy <- round(newy)
   }
   ll <- sum(stats::dbinom(x = newy, size = nn, prob = mle, log = TRUE))
@@ -44,8 +45,9 @@ find.loglik.binomial	<-	function(mle, y, nn) {
 #'
 #'
 find.loglik.poisson   <-  function(mle, y, nn) {
-  if (!isTRUE(all(y == floor(y)))) {
-    warning("Response values are not all integers, responses will be rounded.")
+  if (!isTRUE(all.equal(y, round(y)))) {
+    warning("Response values are not all within integer tolerance,
+            responses will be rounded.")
     newy <- round(y)
   }
   ll <- sum(nn * stats::dpois(x = newy, lambda = mle, log = TRUE))
@@ -63,7 +65,7 @@ find.loglik.poisson   <-  function(mle, y, nn) {
 #'
 #'
 find.loglik.gamma   <-  function(mle, y, nn) {
-  if (!isTRUE(all(y == abs(y)))) {
+  if (!isTRUE(all.equal(y, abs(y)))) {
     stop("Response values are not all positive, regression cannot continue.")
   }
   ll <- sum(nn * stats::dgamma(x = y, shape = mle, log = TRUE))
@@ -85,14 +87,13 @@ find.loglik.gamma   <-  function(mle, y, nn) {
 #' @return numeric value of log likelihood function
 #'
 find.loglik <- function(mle, y, nn, family) {
-  famname <- as.character(substitute(family))[1]
-  if (famname == 'gaussian') {
+  if (family == 'gaussian') {
     find.loglik.gaussian(mle, y, nn)
-  } else if (famname == 'binomial') {
+  } else if (family == 'binomial') {
     find.loglik.binomial(mle, y, nn)
-  } else if (famname == 'poisson') {
+  } else if (family == 'poisson') {
     find.loglik.poisson(mle, y, nn)
-  } else if (famname == 'Gamma') {
+  } else if (family == 'Gamma') {
     find.loglik.gamma(mle, y, nn)
   } else {
     stop("No likelihood defined: please ensure valid family is selected.")

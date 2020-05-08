@@ -56,10 +56,7 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
     family <- get(family, mode = "function", envir = parent.frame())
   if (is.function(family))
     family <- family()
-  print(family)
-  print(typeof(family))
   famname <- as.character(substitute(family))[1]
-  print(famname)
   if (!famname %in% c('gaussian', 'binomial', 'poisson', 'Gamma')){
     stop('Simfast does not support specified family')
   }
@@ -179,7 +176,6 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL,
     data <- as.data.frame(data)
   }
   mf <- match.call()
-  print(mf)
   m <- match(x = c("formula", "data"),
              table = names(mf), nomatch = 0L)
   mf <- mf[c(1L, m)]
