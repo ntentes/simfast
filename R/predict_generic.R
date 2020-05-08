@@ -80,7 +80,7 @@ predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){
     if (type == 'response'){
       return(object$yhat)
     } else {
-      etahat <- linkinverse(yhat)
+      etahat <- linkinverse(object$yhat)
       return(etahat)
     }
   }

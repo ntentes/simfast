@@ -56,7 +56,10 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
     family <- get(family, mode = "function", envir = parent.frame())
   if (is.function(family))
     family <- family()
+  print(family)
+  print(typeof(family))
   famname <- as.character(substitute(family))[1]
+  print(famname)
   if (!famname %in% c('gaussian', 'binomial', 'poisson', 'Gamma')){
     stop('Simfast does not support specified family')
   }
@@ -73,16 +76,16 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
   }
   if (method == 'exact') {
     if (NCOL(x) == 2) {
-      fit <- find.mle(x, y, nn = weights, family = family)
+      fit <- find.mle(x, y, nn = weights, family = famname)
     } else {
       warning('Predictor dimension does not equal 2: fit will use stochastic method.')
       method <- 'stochastic'
-      fit <- search.mle(x, y, nn = weights, family = family, B = B,
+      fit <- search.mle(x, y, nn = weights, family = famname, B = B,
                         k = k, kappa0 = kappa0, tol = tol,
                         max.iter = max.iter, print = FALSE)
     }
   } else {
-    fit <- search.mle(x, y, nn = weights, family = family, B = B,
+    fit <- search.mle(x, y, nn = weights, family = famname, B = B,
                       k = k, kappa0 = kappa0, tol = tol,
                       max.iter = max.iter, print = FALSE)
   }
