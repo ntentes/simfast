@@ -64,7 +64,7 @@ find.loglik.poisson   <-  function(mle, y, nn) {
 #'
 find.loglik.gamma   <-  function(mle, y, nn) {
   if (!isTRUE(all(y == abs(y)))) {
-    stop("Response values are not all positive, regression cannot contiue.")
+    stop("Response values are not all positive, regression cannot continue.")
   }
   ll <- sum(nn * stats::dgamma(x = y, shape = mle, log = TRUE))
   return(ll)
@@ -80,19 +80,19 @@ find.loglik.gamma   <-  function(mle, y, nn) {
 #' @param mle vector, maximum likelihood estimator
 #' @param y vector of numeric response values
 #' @param nn vector of positive integer weights
-#' @param family character string matching the error distribution or link function
+#' @param family \code{\link{family}} object passed by \code{simfast}
 #'
 #' @return numeric value of log likelihood function
 #'
 find.loglik <- function(mle, y, nn, family) {
-  if (family %in% c('gaussian', 'gaussianlog')) {
+  famname <- as.character(substitute(family))[1]
+  if (famname == 'gaussian') {
     find.loglik.gaussian(mle, y, nn)
-  } else if (family %in% c('logit', 'probit', 'cloglog', 'cauchit',
-                           'binomlog', 'binomial')) {
+  } else if (famname == 'binomial') {
     find.loglik.binomial(mle, y, nn)
-  } else if (family %in% c('poisson', 'poissonlog', 'poissonident')) {
+  } else if (famname == 'poisson') {
     find.loglik.poisson(mle, y, nn)
-  } else if (family %in% c('gamma', 'gammainv', 'gammaident', 'gammalog')) {
+  } else if (famname == 'Gamma') {
     find.loglik.gamma(mle, y, nn)
   } else {
     stop("No likelihood defined: please ensure valid family is selected.")

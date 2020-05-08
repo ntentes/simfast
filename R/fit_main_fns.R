@@ -3,7 +3,7 @@
 #' @param x matrix of predictor values
 #' @param y vector of reponse values
 #' @param nn vector of positive integer weights
-#' @param family character string matching the error distribution and link function
+#' @param family \code{\link{family}} object passed by \code{simfast}
 #' @param B positive integer, number of index vectors to test
 #' @param k positive integer, number of alpha tests per iter
 #' @param kappa0 positive integer, kappa0
@@ -107,8 +107,7 @@ search.mle		<-	function(x, y, nn, family='gaussian', B=10000, k=100, kappa0=100,
 #' @param x matrix of predictor values
 #' @param y vector of reponse values
 #' @param nn vector of positive integer weights
-#' @param family character string naming the error distribution to be used in
-#'     the model
+#' @param family \code{\link{family}} object passed by \code{simfast}
 #'
 #' @return list including alpha index estimate in vector form, maximum
 #'     likelihood estimate of the response in vector form, and single index
