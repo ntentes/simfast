@@ -4,7 +4,7 @@
 \alias{plot.simfast}
 \title{Plot the estimated responses and index values of a \code{\link{simfast}} object}
 \usage{
-\method{plot}{simfast}(x, points = TRUE, weights = TRUE, predictor = FALSE, ...)
+\method{plot}{simfast}(x, points = TRUE, weights = TRUE, predictor = FALSE, offset = TRUE, ...)
 }
 \arguments{
 \item{x}{an object of class \code{\link{simfast}}.}
@@ -22,6 +22,10 @@ of the estimated responses (\code{yhat}) and the observed predictors \code{x}
 scatterplot when \code{x} is 2 dimensional and a regular scatterplot if \code{x}
 is one dimensional. \code{plot.simfast} will throw an error with this option
 selected if \code{plotly} is not installed or \code{x} is larger than 2-dimensional.}
+
+\item{offset}{boolean, if \code{FALSE}, adjusts \code{yhat} values by the offset so
+that the isotonic relationship is visible. When \code{TRUE}, \code{yhat} values are
+left unscaled.}
 
 \item{...}{all other arguments passed to \code{\link{plot}}.}
 }

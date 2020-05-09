@@ -156,7 +156,7 @@ plot(sfobj, predictor = TRUE)
 \code{\link{simfast}} for formula support (and support for offsets).
 }
 \author{
-\preformatted{Hanna Jankowski <hkj@yorku.ca>
-Konstantinos Ntentes <kntentes@yorku.ca> (maintainer)
+\preformatted{Hanna Jankowski: hkj@yorku.ca>
+Konstantinos Ntentes: kntentes@yorku.ca (maintainer)
 }
 }

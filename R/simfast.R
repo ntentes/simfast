@@ -77,8 +77,8 @@
 #' @md
 #'
 #' @author
-#'     Hanna Jankowski <hkj@@yorku.ca>
-#'     Konstantinos Ntentes <kntentes@@yorku.ca> (maintainer)
+#'     Hanna Jankowski: hkj@@yorku.ca>
+#'     Konstantinos Ntentes: kntentes@@yorku.ca (maintainer)
 #'
 #' @examples
 #'
@@ -160,13 +160,17 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
   }
   if (famname == 'binomial') {
     newy <- y * weights
-    if (!isTRUE(all.equal(newy, round(newy)))) {
-      warning("y*weights are not all within integer tolerance")
+    if (comment(weights) != 'offset') {
+      if (!isTRUE(all.equal(newy, round(newy)))) {
+        warning("y*weights are not all within integer tolerance")
+      }
     }
   }
   if (famname == 'poisson') {
-    if (!isTRUE(all.equal(y, round(y)))) {
-      warning("count response values are not all within integer tolerance")
+    if (comment(weights) != 'offset') {
+      if (!isTRUE(all.equal(y, round(y)))) {
+        warning("count response values are not all within integer tolerance")
+      }
     }
   }
   if (famname == 'Gamma') {
@@ -315,17 +319,49 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #' }
 #'
 #'
-#' @seealso \code{\link{simfast_m}} for providing model matrices instead of a formula.
+#' @seealso \code{\link{simfast_m}} for providing model matrices instead of a formula, as well
+#'      as more examples.
 #'
 #' @export
 #' @md
 #'
 #' @author
-#'     Hanna Jankowski \email{hkj@@yorku.ca}
-#'     Konstantinos Ntentes \email{kntentes@@yorku.ca} (maintainer)
+#'     Hanna Jankowski: hkj@@yorku.ca
+#'     Konstantinos Ntentes: kntentes@@yorku.ca (maintainer)
 #'
 #' @examples
 #'
+#' ## Load esophageal cancer dataset
+#' esoph <- datasets::esoph
+#' str(esoph) # note that three variables are ordered factors
+#'
+#' ## subset the data frame for training
+#' nobs <- NROW(esoph)
+#' ind <- sample(1:nobs, size = round(nobs * 0.8))
+#' esophtrain <- esoph[ind, ]
+#' esophtest  <- esoph[-ind, ]
+#'
+#' ## fit a model with formulas, including ordered/regular factors
+#' ## and support for offsets. similar syntax to glm()
+#' sfobj <- simfast(ncases ~ offset(log(ncontrols)) + tobgp + alcgp + agegp,
+#'                  data = esophtrain, family = poisson(link = 'log'))
+#'
+#' glmfit <- glm(ncases ~ offset(log(ncontrols)) + tobgp + alcgp + agegp,
+#'               data = esophtrain, family = poisson(link = 'log'))
+#'
+#' ## Plot the relationship of estimated responses vs. index values
+#' plot(sfobj)                 # Not isotonic because of offset
+#' plot(sfobj, offset = FALSE) # Y-hats adjusted to same scale
+#'
+#' ## Predictions from simfast and glm rounded to nearest integer
+#' sfpred <- round(predict(sfobj, newdata = esophtest, type = 'response'))
+#' sfpred
+#' glmpred <- round(predict(glmfit, newdata = esophtest, type = 'response'))
+#' glmpred
+#'
+#' ## Compare square residuals (lower is better)
+#' sum((sfpred - esophtest$ncases)^2)   #simfast prediction
+#' sum((glmpred - esophtest$ncases)^2)  #glm prediction
 #'
 #'
 simfast <- function(formula, data, intercept = FALSE, weights = NULL,
@@ -367,11 +403,14 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL,
   linkinv <- family$linkinv
   linkfun <- family$linkfun
   if (!is.null(os)){
-    oldweights <- weights
-    if (!is.null(weights)){
-      weights <- weights * linkinv(os)
-    } else {
+    if (is.null(weights)) {
+      oldweights <- rep(1, length(ym))
       weights <- linkinv(os)
+      comment(weights) <- 'offset'
+    } else {
+      oldweights <- weights
+      weights <- weights * linkinv(os)
+      comment(weights) <- 'offset'
     }
     oldy <- ym
     ym <- linkfun(ym) - os
@@ -381,7 +420,7 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL,
                       returndata = returndata, method = method, multiout = multiout,
                       B = B, k = k, kappa0 = kappa0, tol = tol, max.iter = max.iter)
   if (returnmodel == TRUE){
-    simfit[['model']] <- mf
+    simfit[['model']] <- mm
   }
   simfit[['intercept']] <- intercept
   if (!is.null(os)) {

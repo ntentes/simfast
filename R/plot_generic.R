@@ -17,6 +17,9 @@
 #'     scatterplot when \code{x} is 2 dimensional and a regular scatterplot if \code{x}
 #'     is one dimensional. \code{plot.simfast} will throw an error with this option
 #'     selected if \code{plotly} is not installed or \code{x} is larger than 2-dimensional.
+#' @param offset boolean, if \code{FALSE}, adjusts \code{yhat} values by the offset so
+#'     that the isotonic relationship is visible. When \code{TRUE}, \code{yhat} values are
+#'     left unscaled.
 #' @param ... all other arguments passed to \code{\link{plot}}.
 #'
 #' @export
@@ -29,8 +32,19 @@
 #'
 #' # See the example provided in the \code{\link{simfast}} documentation.
 #'
-plot.simfast <- function(x, points = TRUE, weights = TRUE, predictor = FALSE, ...){
-  xord <- order(x$indexvals)
+plot.simfast <- function(x, points = TRUE, weights = TRUE, predictor = FALSE, offset = TRUE, ...){
+  indvals <- x$indexvals
+  xord <- order(indvals)
+  yhat <- x$yhat
+  if (!offset) {
+    if (!is.null(x$offset)){
+      family <- x$family
+      linkinv <- family$linkinv
+      linkfun <- family$linkfun
+      yhat <- linkfun(yhat) - x$offset
+      yhat <- linkinv(yhat)
+    }
+  }
   if (predictor) {
     if (NCOL(x$x) > 2) {
       stop("Predictor dimension >2, cannot plot predictor plot.")
@@ -38,14 +52,14 @@ plot.simfast <- function(x, points = TRUE, weights = TRUE, predictor = FALSE, ..
       stop("R Package 'plotly' required to plot interactive visualization.
            Please install and re-run.")
     } else if (NCOL(x$x) == 1) {
-      fig <- plotly::plot_ly(x = x$x, y= x$yhat, type = 'scatter', mode = 'markers',
+      fig <- plotly::plot_ly(x = x$x, y= yhat, type = 'scatter', mode = 'markers',
                      color = I('black'), ...)
       fig <- plotly::layout(fig, title = 'Y-Hat vs. Observed Predictors',
                     xaxis = list(title = 'Observed X', zeroline = FALSE),
                     yaxis = list(title = 'Y-Hat', zeroline = FALSE))
       return(fig)
     } else {
-      fig <- plotly::plot_ly(x = x$x[,1], y = x$x[,2], z = x$yhat,
+      fig <- plotly::plot_ly(x = x$x[,1], y = x$x[,2], z = yhat,
                              type = 'scatter3d', mode = 'markers',
                              color = I('black'), ...)
       fig <- plotly::layout(fig, title = 'Y-Hat vs. Observed Predictors',
@@ -60,24 +74,24 @@ plot.simfast <- function(x, points = TRUE, weights = TRUE, predictor = FALSE, ..
       wtsize <- scale(wtsize, center = FALSE)
       wtsize <- (wtsize - min(wtsize))*1.5 + 1
     } else {
-      wtsize <- rep(1, length(x$yhat))
+      wtsize <- rep(1, length(yhat))
     }
-    graphics::plot(x = x$indexvals[xord], y = x$yhat[xord], col = 'darkgrey', lwd = 2,
+    graphics::plot(x = indvals[xord], y = yhat[xord], col = 'darkgrey', lwd = 2,
                    type = 'l', main = "Estimated Response Values vs. Single Index Values",
                    xlab = expression(paste("Single Index Values: ", x^T, hat(alpha))),
                    ylab = '', cex.main = 1, cex.lab = 0.9, ...)
     graphics::title(ylab=expression(paste("Response Estimates: ", hat(Y))),
                     mgp=c(2.3,1,0), cex.lab=0.9)
-    graphics::rug(x$indexvals)
-    graphics::points(x = x$indexvals, y = x$yhat, pch = 20,
+    graphics::rug(indvals)
+    graphics::points(x = indvals, y = yhat, pch = 20,
                      col = grDevices::rgb(0,0,0, alpha = 0.3), cex = wtsize)
   } else {
-    graphics::plot(x = x$indexvals[xord], y = x$yhat[xord], col = 'darkgrey', lwd = 2,
+    graphics::plot(x = indvals[xord], y = yhat[xord], col = 'darkgrey', lwd = 2,
                    type = 'l', main = "Estimated Response Values vs. Single Index Values",
                    xlab = expression(paste("Single Index Values: ", x^T, hat(alpha))),
                    ylab = '', cex.main = 1, cex.lab = 0.9, ...)
     graphics::title(ylab=expression(paste("Response Estimates: ", hat(Y))),
                     mgp=c(2.3,1,0), cex.lab=0.9)
-    graphics::rug(x$indexvals)
+    graphics::rug(indvals)
   }
 }

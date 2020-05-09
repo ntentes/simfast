@@ -142,7 +142,7 @@ predict.simfast <- function(object, newdata, type = 'link', rule = 1){
       newdata <- as.data.frame(newdata)
     }
     mf <- object$model
-    mm <- attr(mf, which = "terms")
+    mm <- terms(mf)
     if (object$intercept == FALSE) {
       attr(mm, "intercept") <- 0
     }

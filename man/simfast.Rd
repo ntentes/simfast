@@ -127,14 +127,46 @@ and built-in regression families (see Arguments).
 }
 \examples{
 
+## Load esophageal cancer dataset
+esoph <- datasets::esoph
+str(esoph) # note that three variables are ordered factors
+
+## subset the data frame for training
+nobs <- NROW(esoph)
+ind <- sample(1:nobs, size = round(nobs * 0.8))
+esophtrain <- esoph[ind, ]
+esophtest  <- esoph[-ind, ]
+
+## fit a model with formulas, including ordered/regular factors
+## and support for offsets. similar syntax to glm()
+sfobj <- simfast(ncases ~ offset(log(ncontrols)) + tobgp + alcgp + agegp,
+                 data = esophtrain, family = poisson(link = 'log'))
+
+glmfit <- glm(ncases ~ offset(log(ncontrols)) + tobgp + alcgp + agegp,
+              data = esophtrain, family = poisson(link = 'log'))
+
+## Plot the relationship of estimated responses vs. index values
+plot(sfobj)                 # Not isotonic because of offset
+plot(sfobj, offset = FALSE) # Y-hats adjusted to same scale
+
+## Predictions from simfast and glm rounded to nearest integer
+sfpred <- round(predict(sfobj, newdata = esophtest, type = 'response'))
+sfpred
+glmpred <- round(predict(glmfit, newdata = esophtest, type = 'response'))
+glmpred
+
+## Compare square residuals (lower is better)
+sum((sfpred - esophtest$ncases)^2)   #simfast prediction
+sum((glmpred - esophtest$ncases)^2)  #glm prediction
 
 
 }
 \seealso{
-\code{\link{simfast_m}} for providing model matrices instead of a formula.
+\code{\link{simfast_m}} for providing model matrices instead of a formula, as well
+as more examples.
 }
 \author{
-\preformatted{Hanna Jankowski \email{hkj@yorku.ca}
-Konstantinos Ntentes \email{kntentes@yorku.ca} (maintainer)
+\preformatted{Hanna Jankowski: hkj@yorku.ca
+Konstantinos Ntentes: kntentes@yorku.ca (maintainer)
 }
 }
