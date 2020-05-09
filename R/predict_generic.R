@@ -22,7 +22,7 @@
 #'
 mat_pred <- function(object, newdata, type, rule, fn, interp, link){
   newdata  <- as.matrix(newdata)
-  newdata  <- na.omit(newdata)
+  newdata  <- stats::na.omit(newdata)
   rwnms <- rownames(newdata)
   leftlim  <- min(object$indexvals)
   rightlim <- max(object$indexvals)
@@ -84,6 +84,7 @@ mat_pred <- function(object, newdata, type, rule, fn, interp, link){
 #'     is \code{1}, which uses linear extrapolation to estimate outside
 #'     values, but can take value \code{2} which provides the value of
 #'     the closest edge point.
+#' @param ... further arguments passed to \code{predict}
 #'
 #' @return a numeric vector of the specified prediction values
 #' @export
@@ -97,7 +98,7 @@ mat_pred <- function(object, newdata, type, rule, fn, interp, link){
 #'
 #' # See the example provided in the \code{\link{simfast}} documentation.
 #'
-predict.simfast <- function(object, newdata, type = 'link', rule = 1){
+predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){
   family <- object$family
   linkinv <- family$linkinv
   linkfun <- family$linkfun
@@ -142,14 +143,14 @@ predict.simfast <- function(object, newdata, type = 'link', rule = 1){
       newdata <- as.data.frame(newdata)
     }
     mf <- object$model
-    mm <- terms(mf)
+    mm <- stats::terms(mf)
     if (object$intercept == FALSE) {
       attr(mm, "intercept") <- 0
     }
     newmf <- stats::model.frame(formula = mm, data = newdata)
     newmm <- stats::model.matrix(object = mm, data = newmf)
     if (!is.null(object$offset)) {
-      newoffset <- model.offset(newmf)
+      newoffset <- stats::model.offset(newmf)
       oldy <- object$yhat
       osy <- oldy
       osy <- linkfun(osy) - object$offset

@@ -4,7 +4,7 @@
 \alias{predict.simfast}
 \title{Predict values of a \code{simfast} object with a data frame or a matrix}
 \usage{
-\method{predict}{simfast}(object, newdata, type = "link", rule = 1)
+\method{predict}{simfast}(object, newdata, type = "link", rule = 1, ...)
 }
 \arguments{
 \item{object}{an object of class \code{simfast}}
@@ -27,6 +27,8 @@ outside the range of the original data. By default, the value
 is \code{1}, which uses linear extrapolation to estimate outside
 values, but can take value \code{2} which provides the value of
 the closest edge point.}
+
+\item{...}{further arguments passed to \code{predict}}
 }
 \value{
 a numeric vector of the specified prediction values

@@ -160,14 +160,14 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
   }
   if (famname == 'binomial') {
     newy <- y * weights
-    if (comment(weights) != 'offset') {
+    if (is.null(comment(weights))) {
       if (!isTRUE(all.equal(newy, round(newy)))) {
         warning("y*weights are not all within integer tolerance")
       }
     }
   }
   if (famname == 'poisson') {
-    if (comment(weights) != 'offset') {
+    if (is.null(comment(weights))) {
       if (!isTRUE(all.equal(y, round(y)))) {
         warning("count response values are not all within integer tolerance")
       }
