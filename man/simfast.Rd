@@ -25,15 +25,18 @@ simfast(
 \arguments{
 \item{formula}{an object of class \code{\link{formula}}, which is a symbolic
 description of the model to be fitted. By default, intercepts are NOT
-included, so change argument \code{intercept = TRUE} to include one. NOTE: When
-including categorical predictors, be sure that you set
-\code{options('contrasts')} in your global options to a desired setting. This
-function was designed with the \code{'contr.treatment'} option in mind.
+included, so change argument \code{intercept = TRUE} to include one. When
+including categorical predictors, be sure to set
+\code{options('contrasts')} in your global options to a desired setting.
 For \code{'binomial'} response, the vector can be binary values or a vector of
-proportions, as long as a proper weight vector (a vector of the denominators
-of the proportions, see details) is provided. Categorical vectors (character
-strings or factors) will automatically be translated into logical vector with
-the baseline factor level a 'success' (takes value \code{1}).}
+proportions, but should include proper weight vector (a vector of the denominators
+of the proportions) is provided. Categorical vectors (character strings or
+factors) will automatically be translated into a logical vector with
+the baseline factor level a 'success' (takes value \code{1}). Poisson responses
+can be integer counts or rates, but should include a proper weight vector (a
+vector of the denominators of the rates). Offsets can also be specified in the
+formula. Note that multiple offsets are combined, and that duplicate
+offsets are only counted once.}
 
 \item{data}{optional data frame (or object coercible to a data frame by
 \code{\link{as.data.frame}}) containing the variables in the model. Variables
@@ -97,7 +100,8 @@ fit the model, otherwise it is \code{NULL}.}
 of \code{x} and \code{alphahat}}
 \item{\code{weights}}{vector of the integer weights used in the model fit}
 \item{\code{family}}{the \code{\link{family}} function provided to \code{simfast_m}}
-\item{\code{link}}{the link function proposed by \code{family}}
+\item{\code{offset}}{a numeric vector specifying the offset provided in the
+model formula.}
 \item{\code{tol}}{numeric convergence tolerance acheived during fitting with
 \code{method = 'stochastic'}. For \code{method = 'exact'}, this is \code{0}.}
 \item{\code{iter}}{number of iterations used to acheieve convergence. For

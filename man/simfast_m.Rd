@@ -79,7 +79,7 @@ fit the model, otherwise it is \code{NULL}.}
 of \code{x} and \code{alphahat}}
 \item{\code{weights}}{vector of the integer weights used in the model fit}
 \item{\code{family}}{the \code{\link{family}} function provided to \code{simfast_m}}
-\item{\code{link}}{the link function proposed by \code{family}}
+\item{\code{offset}}{returns \code{NULL} when calling \code{simfast_m}}
 \item{\code{tol}}{numeric convergence tolerance acheived during fitting with
 \code{method = 'stochastic'}. For \code{method = 'exact'}, this is \code{0}.}
 \item{\code{iter}}{number of iterations used to acheieve convergence. For
@@ -153,7 +153,7 @@ plot(sfobj, predictor = TRUE)
 
 }
 \seealso{
-\code{\link{simfast}} for formula support.
+\code{\link{simfast}} for formula support (and support for offsets).
 }
 \author{
 \preformatted{Hanna Jankowski <hkj@yorku.ca>

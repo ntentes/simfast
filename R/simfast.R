@@ -54,7 +54,7 @@
 #'      of \code{x} and \code{alphahat}}
 #'  \item{\code{weights}}{vector of the integer weights used in the model fit}
 #'  \item{\code{family}}{the \code{\link{family}} function provided to \code{simfast_m}}
-#'  \item{\code{link}}{the link function proposed by \code{family}}
+#'  \item{\code{offset}}{returns \code{NULL} when calling \code{simfast_m}}
 #'  \item{\code{tol}}{numeric convergence tolerance acheived during fitting with
 #'      \code{method = 'stochastic'}. For \code{method = 'exact'}, this is \code{0}.}
 #'  \item{\code{iter}}{number of iterations used to acheieve convergence. For
@@ -62,7 +62,6 @@
 #'  \item{\code{method}}{\code{method} used for fitting the model}
 #'  \item{\code{model}}{returns \code{NULL} when calling \code{simfast_m}}
 #'  \item{\code{intercept}}{returns \code{NULL} when calling \code{simfast_m}}
-#'  \item{\code{offset}}{returns \code{NULL} when calling \code{simfast_m}}
 #'  \item{\code{multialphahat}}{returns all estimated \code{alphahat} vectors
 #'      if \code{multiout = TRUE} as a matrix if there is more than one, and
 #'      as a vector if there is only one.}
@@ -207,9 +206,8 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
   alphahat <- firstrow(fit$alphahat)
 
   obj <- list('alphahat' = alphahat, 'yhat' = yhat, 'indexvals' = indexvals,
-              'weights' = weights, 'family' = family, 'link' = linkfun, 'tol' = tol,
-              'iter' = iter, 'method' = method, 'model' = NULL, 'intercept' = NULL,
-              'offset' = NULL)
+              'weights' = weights, 'family' = family, 'offset' = NULL, 'tol' = tol,
+              'iter' = iter, 'method' = method, 'model' = NULL, 'intercept' = NULL)
 
   if (multiout == TRUE) {
     obj <- append(obj, list("multialphahat" = fit$alphahat, "multiyhat" = fit$mle))
@@ -297,7 +295,8 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'      of \code{x} and \code{alphahat}}
 #'  \item{\code{weights}}{vector of the integer weights used in the model fit}
 #'  \item{\code{family}}{the \code{\link{family}} function provided to \code{simfast_m}}
-#'  \item{\code{link}}{the link function proposed by \code{family}}
+#'  \item{\code{offset}}{a numeric vector specifying the offset provided in the
+#'      model formula.}
 #'  \item{\code{tol}}{numeric convergence tolerance acheived during fitting with
 #'      \code{method = 'stochastic'}. For \code{method = 'exact'}, this is \code{0}.}
 #'  \item{\code{iter}}{number of iterations used to acheieve convergence. For
@@ -307,8 +306,6 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'      which is used to generate the \code{\link{model.matrix}} and
 #'      \code{\link{model.response}} to pass to \code{simfast_m}}
 #'  \item{\code{intercept}}{the \code{intercept} rule selected in the argument}
-#'  \item{\code{offset}}{a numeric vector specifying the offset provided in the
-#'      model formula.}
 #'  \item{\code{multialphahat}}{returns all estimated \code{alphahat} vectors
 #'      if \code{multiout = TRUE} as a matrix if there is more than one, and
 #'      as a vector if there is only one.}
@@ -334,7 +331,7 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 simfast <- function(formula, data, intercept = FALSE, weights = NULL,
                     family = 'gaussian', returnmodel = TRUE, returndata = TRUE,
                     method = 'stochastic', multiout = FALSE, B = 10000, k = 100,
-                    kappa0 = 100, tol = 1e-10, max.iter = 20){
+                    kappa0 = 100, tol = 1e-10, max.iter = 20) {
   if (missing(data)) {
     data <- environment(formula)
   } else if (!is.data.frame(data)) {
@@ -370,6 +367,7 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL,
   linkinv <- family$linkinv
   linkfun <- family$linkfun
   if (!is.null(os)){
+    oldweights <- weights
     if (!is.null(weights)){
       weights <- weights * linkinv(os)
     } else {
@@ -383,15 +381,16 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL,
                       returndata = returndata, method = method, multiout = multiout,
                       B = B, k = k, kappa0 = kappa0, tol = tol, max.iter = max.iter)
   if (returnmodel == TRUE){
-    simfit[['model']] <- mm
+    simfit[['model']] <- mf
   }
   simfit[['intercept']] <- intercept
-  if (!is.null(os)){
+  if (!is.null(os)) {
     simfit[['y']] <- oldy
     yhat <- simfit[['yhat']]
     yhat <- linkfun(yhat) + os
     simfit[['yhat']] <- linkinv(yhat)
     simfit[['offset']] <- os
+    simfit[['weights']] <- oldweights
   }
   return(simfit)
 }

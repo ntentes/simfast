@@ -4,7 +4,7 @@
 \alias{predict.simfast}
 \title{Predict values of a \code{simfast} object with a data frame or a matrix}
 \usage{
-\method{predict}{simfast}(object, newdata, type = "link", rule = 1, ...)
+\method{predict}{simfast}(object, newdata, type = "link", rule = 1)
 }
 \arguments{
 \item{object}{an object of class \code{simfast}}
@@ -12,9 +12,10 @@
 \item{newdata}{optional numeric matrix or data frame of new data. If
 none is provided, the original data will be used. If a data frame
 is provided, predictions cannot be made unless \code{returnmodel = TRUE}
-was selected (this is the default value). New numeric matrix or data
-frame must match the structure of the original data. Note that
-rows with \code{NA} values will be removed.}
+was selected when fitting your \code{simfast} object (this is the default
+value). New numeric matrix or data frame must match the structure of the
+original data (unused columns in data frames need not be included). Note
+that rows with \code{NA} values will be removed.}
 
 \item{type}{character string specifying type of prediction, takes
 value \code{'link'} by default for predictions on the scale of
@@ -26,8 +27,6 @@ outside the range of the original data. By default, the value
 is \code{1}, which uses linear extrapolation to estimate outside
 values, but can take value \code{2} which provides the value of
 the closest edge point.}
-
-\item{...}{other parameters passed to \code{\link{predict}}}
 }
 \value{
 a numeric vector of the specified prediction values

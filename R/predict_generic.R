@@ -20,33 +20,40 @@
 #' @noRd
 #' @keywords internal
 #'
-mat_pred <- function(object, data, type, rule, fn, interp, link){
+mat_pred <- function(object, newdata, type, rule, fn, interp, link){
   newdata  <- as.matrix(newdata)
   newdata  <- na.omit(newdata)
+  rwnms <- rownames(newdata)
   leftlim  <- min(object$indexvals)
   rightlim <- max(object$indexvals)
-  oob      <- (object$indexvals < leftlim | object$indexvals > rightlim)
   if (NCOL(newdata) != length(firstrow(object$alphahat))) {
     stop("'newdata' must have the same number of columns as object$x")
   }
   newivs   <- newdata %*% firstrow(object$alphahat)
+  oob      <- (newivs < leftlim | newivs > rightlim)
   if (!is.numeric(newdata)) {
     stop("'newdata' must be a numeric matrix or object$model must contain a model.frame")
   } else {
     newyhat <- fn(newivs)
     if (type == 'response') {
       if (rule == 2) {
+        names(newyhat) <- rwnms
         return(newyhat)
       } else {
         newyhat[oob] <- interp(newivs[oob])
+        names(newyhat) <- rwnms
         return(newyhat)
       }
     } else {
       if (rule == 2) {
-        return(link(newyhat))
+        newyhat <- link(newyhat)
+        names(newyhat) <- rwnms
+        return(newyhat)
       } else {
         newyhat[oob] <- interp(newivs[oob])
-        return(link(newyhat))
+        newyhat <- link(newyhat)
+        names(newyhat) <- rwnms
+        return(newyhat)
       }
     }
   }
@@ -64,9 +71,10 @@ mat_pred <- function(object, data, type, rule, fn, interp, link){
 #' @param newdata optional numeric matrix or data frame of new data. If
 #'     none is provided, the original data will be used. If a data frame
 #'     is provided, predictions cannot be made unless \code{returnmodel = TRUE}
-#'     was selected (this is the default value). New numeric matrix or data
-#'     frame must match the structure of the original data. Note that
-#'     rows with \code{NA} values will be removed.
+#'     was selected when fitting your \code{simfast} object (this is the default
+#'     value). New numeric matrix or data frame must match the structure of the
+#'     original data (unused columns in data frames need not be included). Note
+#'     that rows with \code{NA} values will be removed.
 #' @param type character string specifying type of prediction, takes
 #'     value \code{'link'} by default for predictions on the scale of
 #'     the linear predictors, and takes \code{'response'} for predicted
@@ -76,7 +84,6 @@ mat_pred <- function(object, data, type, rule, fn, interp, link){
 #'     is \code{1}, which uses linear extrapolation to estimate outside
 #'     values, but can take value \code{2} which provides the value of
 #'     the closest edge point.
-#' @param ... other parameters passed to \code{\link{predict}}
 #'
 #' @return a numeric vector of the specified prediction values
 #' @export
@@ -90,8 +97,10 @@ mat_pred <- function(object, data, type, rule, fn, interp, link){
 #'
 #' # See the example provided in the \code{\link{simfast}} documentation.
 #'
-predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){
-  linkfun <- object$link
+predict.simfast <- function(object, newdata, type = 'link', rule = 1){
+  family <- object$family
+  linkinv <- family$linkinv
+  linkfun <- family$linkfun
   if (missing(newdata)){
     if (type == 'response'){
       return(object$yhat)
@@ -114,7 +123,7 @@ predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){
   }
   if (is.null(object$model)) {
     if (is.matrix(newdata)){
-      predvec <- mat_pred(object = object, data = newdata, type = type, rule = rule,
+      predvec <- mat_pred(object = object, newdata = newdata, type = type, rule = rule,
                         fn = predfun, interp = interp, link = linkfun)
       return(predvec)
     } else {
@@ -123,21 +132,55 @@ predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){
         stop("If model = NULL in the simfast object, then a numeric matrix
            must be provided, not a data frame.")
       } else {
-        predvec <- mat_pred(object = object, data = newdata, type = type, rule = rule,
+        predvec <- mat_pred(object = object, newdata = newdata, type = type, rule = rule,
                             fn = predfun, interp = interp, link = linkfun)
         return(predvec)
       }
     }
   } else {
+    if (!is.data.frame(newdata)){
+      newdata <- as.data.frame(newdata)
+    }
     mf <- object$model
     mm <- attr(mf, which = "terms")
     if (object$intercept == FALSE) {
       attr(mm, "intercept") <- 0
     }
-    newdata <- stats::model.matrix(object = mm)
-    predvec <- mat_pred(object = object, data = newdata, type = type, rule = rule,
+    newmf <- stats::model.frame(formula = mm, data = newdata)
+    newmm <- stats::model.matrix(object = mm, data = newmf)
+    if (!is.null(object$offset)) {
+      newoffset <- model.offset(newmf)
+      oldy <- object$yhat
+      osy <- oldy
+      osy <- linkfun(osy) - object$offset
+      osy <- linkinv(osy)
+      pfos <- stats::approxfun(x = object$indexvals, y = osy,
+                               method = "linear", rule = 2, ties = mean)
+      intos  <- function(ind) {
+        x1 <- min(object$indexvals)
+        x2 <- max(object$indexvals)
+        y1 <- min(osy)
+        y2 <- max(osy)
+        m  <- (y2-y1)/(x2-x1)
+        b  <- y2 - x2*m
+        yhatint <- m * ind + b
+        return(yhatint)
+      }
+      predvec <- mat_pred(object = object, newdata = newmm, type = 'link', rule = rule,
+                          fn = pfos, interp = intos, link = linkfun)
+      yhatos <- predvec + newoffset
+      if (type == 'link') {
+        predvec <- yhatos
+        return(predvec)
+      } else {
+        predvec <- linkinv(yhatos)
+        return(predvec)
+      }
+    } else {
+      predvec <- mat_pred(object = object, newdata = newmm, type = type, rule = rule,
                         fn = predfun, interp = interp, link = linkfun)
-    return(predvec)
+      return(predvec)
+    }
   }
 }
 
