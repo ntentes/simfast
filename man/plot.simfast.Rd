@@ -29,6 +29,11 @@ selected if \code{plotly} is not installed or \code{x} is larger than 2-dimensio
 Plot the estimated responses and index values of a \code{\link{simfast}} object.
 Can also be called by running \code{\link{plot}} on a \code{simfast} object.
 }
+\examples{
+
+# See the example provided in the \code{\link{simfast}} documentation.
+
+}
 \author{
 Hanna Jankowski \email{hkj@yorku.ca}
     Konstantinos Ntentes \email{kntentes@yorku.ca} (maintainer)

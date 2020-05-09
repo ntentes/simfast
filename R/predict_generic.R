@@ -87,6 +87,9 @@ mat_pred <- function(object, data, type, rule, fn, interp, link){
 #'
 #'
 #' @examples
+#'
+#' # See the example provided in the \code{\link{simfast}} documentation.
+#'
 predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){
   linkfun <- object$link
   if (missing(newdata)){

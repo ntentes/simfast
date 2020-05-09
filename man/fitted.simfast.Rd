@@ -17,6 +17,11 @@ a numeric vector of fitted values
 \description{
 Extract fitted values of a \code{simfast} object
 }
+\examples{
+
+# See the example provided in the \code{\link{simfast}} documentation.
+
+}
 \author{
 Hanna Jankowski \email{hkj@yorku.ca}
     Konstantinos Ntentes \email{kntentes@yorku.ca} (maintainer)

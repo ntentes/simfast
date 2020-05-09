@@ -26,6 +26,9 @@
 #'     Konstantinos Ntentes \email{kntentes@@yorku.ca} (maintainer)
 #'
 #' @examples
+#'
+#' # See the example provided in the \code{\link{simfast}} documentation.
+#'
 plot.simfast <- function(x, points = TRUE, weights = TRUE, predictor = FALSE, ...){
   xord <- order(x$indexvals)
   if (predictor) {
@@ -36,14 +39,15 @@ plot.simfast <- function(x, points = TRUE, weights = TRUE, predictor = FALSE, ..
            Please install and re-run.")
     } else if (NCOL(x$x) == 1) {
       fig <- plotly::plot_ly(x = x$x, y= x$yhat, type = 'scatter', mode = 'markers',
-                     color = I('black'))
+                     color = I('black'), ...)
       fig <- plotly::layout(fig, title = 'Y-Hat vs. Observed Predictors',
                     xaxis = list(title = 'Observed X', zeroline = FALSE),
                     yaxis = list(title = 'Y-Hat', zeroline = FALSE))
       return(fig)
     } else {
       fig <- plotly::plot_ly(x = x$x[,1], y = x$x[,2], z = x$yhat,
-                             type = 'scatter3d', mode = 'markers', color = I('black'))
+                             type = 'scatter3d', mode = 'markers',
+                             color = I('black'), ...)
       fig <- plotly::layout(fig, title = 'Y-Hat vs. Observed Predictors',
                             scene = list(xaxis = list(title = 'Observed X_1'),
                                     yaxis = list(title = 'Observed X_2'),
@@ -54,24 +58,24 @@ plot.simfast <- function(x, points = TRUE, weights = TRUE, predictor = FALSE, ..
     if (weights) {
       wtsize <- x$weights
       wtsize <- scale(wtsize, center = FALSE)
-      wtsize <- wtsize - min(wtsize) + 1
+      wtsize <- (wtsize - min(wtsize))*1.5 + 1
     } else {
       wtsize <- rep(1, length(x$yhat))
     }
     graphics::plot(x = x$indexvals[xord], y = x$yhat[xord], col = 'darkgrey', lwd = 2,
                    type = 'l', main = "Estimated Response Values vs. Single Index Values",
                    xlab = expression(paste("Single Index Values: ", x^T, hat(alpha))),
-                   ylab = '', cex.main = 1, cex.lab = 0.9)
+                   ylab = '', cex.main = 1, cex.lab = 0.9, ...)
     graphics::title(ylab=expression(paste("Response Estimates: ", hat(Y))),
                     mgp=c(2.3,1,0), cex.lab=0.9)
     graphics::rug(x$indexvals)
     graphics::points(x = x$indexvals, y = x$yhat, pch = 20,
-                     col = grDevices::rgb(0,0,0, alpha = 0.5), cex = wtsize)
+                     col = grDevices::rgb(0,0,0, alpha = 0.3), cex = wtsize)
   } else {
     graphics::plot(x = x$indexvals[xord], y = x$yhat[xord], col = 'darkgrey', lwd = 2,
                    type = 'l', main = "Estimated Response Values vs. Single Index Values",
                    xlab = expression(paste("Single Index Values: ", x^T, hat(alpha))),
-                   ylab = '', cex.main = 1, cex.lab = 0.9)
+                   ylab = '', cex.main = 1, cex.lab = 0.9, ...)
     graphics::title(ylab=expression(paste("Response Estimates: ", hat(Y))),
                     mgp=c(2.3,1,0), cex.lab=0.9)
     graphics::rug(x$indexvals)

@@ -11,6 +11,9 @@
 #'     Konstantinos Ntentes \email{kntentes@@yorku.ca} (maintainer)
 #'
 #' @examples
+#'
+#' # See the example provided in the \code{\link{simfast}} documentation.
+#'
 fitted.simfast <- function (object, ...){
   predict.simfast(object, type = 'response')
 }

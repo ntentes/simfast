@@ -29,8 +29,9 @@
 #'     search. If \code{d} does not equal \code{2}, \code{simfast_m} will give a
 #'     warning and automatically continue with a stochastic search (the default
 #'     method, \code{method = 'stochastic'}).
-#' @param multialpha optional boolean, if \code{TRUE}, will return more than one
-#'     \code{alpha} vector if available (see Value section and Details).
+#' @param multiout optional boolean, if \code{TRUE}, will return more than one
+#'     \code{alpha} vector and \code{yhat} vector if available, seperately from the main
+#'     estimate (see Value section and Details).
 #' @param B positive integer, sets number of index vectors to try when maximizing
 #'     the likelihood
 #' @param k positive integer, less than \code{B}
@@ -47,8 +48,7 @@
 #'       fit the model, otherwise it is \code{NULL}.}
 #'  \item{\code{y}}{if \code{returndata = TRUE}, this is the response vector used to
 #'       fit the model, otherwise it is \code{NULL}.}
-#'  \item{\code{alphahat}}{\code{alpha} value estimated by the model fit, will return a
-#'       matrix of multiple vectors if \code{multialpha = TRUE}}
+#'  \item{\code{alphahat}}{\code{alpha} vector estimated by the model fit}
 #'  \item{\code{yhat}}{vector of estimated response values}
 #'  \item{\code{indexvals}}{vector of estimated single index values, the matrix product
 #'      of \code{x} and \code{alphahat}}
@@ -62,10 +62,17 @@
 #'  \item{\code{method}}{\code{method} used for fitting the model}
 #'  \item{\code{model}}{returns \code{NULL} when calling \code{simfast_m}}
 #'  \item{\code{intercept}}{returns \code{NULL} when calling \code{simfast_m}}
+#'  \item{\code{offset}}{returns \code{NULL} when calling \code{simfast_m}}
+#'  \item{\code{multialphahat}}{returns all estimated \code{alphahat} vectors
+#'      if \code{multiout = TRUE} as a matrix if there is more than one, and
+#'      as a vector if there is only one.}
+#'  \item{\code{multiyhat}}{returns all estimated \code{yhat} vectors
+#'      if \code{multiout = TRUE} as a matrix if there is more than one, and
+#'      as a vector if there is only one.}
 #' }
 #'
 #'
-#' @seealso \code{\link{simfast}} for formula support.
+#' @seealso \code{\link{simfast}} for formula support (and support for offsets).
 #'
 #' @export
 #' @md
@@ -75,8 +82,57 @@
 #'     Konstantinos Ntentes <kntentes@@yorku.ca> (maintainer)
 #'
 #' @examples
+#'
+#' ## Generate predictor data uniformly on [-4, 4]^2
+#' d <- 2
+#' preds <- matrix(stats::runif(d*200, min = -4, max = 4), 200, d)
+#'
+#' ## Choose true alpha in R^2 with magnitude 1
+#' alpha <- c(-2, 0.5)/sqrt(4.25)
+#'
+#' ## Set true ridge function (piecewise)
+#' fn <- function(x){
+#' ## RANGE              ## VALUES
+#' (x< -3)             * (x+5)               +
+#' (x< -1)*(x>= -3)    * 2                   +
+#' (x< 1.525)*(x>= -1) * (0.1*(x + 1)^3 + 2) +
+#' (x>=1.525)          * (0.4*x + 3)
+#' }
+#'
+#' fn2 <- function(x) fn(x)/5          # scale to range of [0,1]
+#' graphics::plot(fn2, xlim = c(-5,5)) # inspect plot of ridge
+#'
+#' ## Generate binomial response values with the same number of rows
+#' indexvals <- preds %*% alpha
+#' probs  <- fn2(indexvals)
+#' y <- stats::rbinom(200, size = 1, prob = probs)
+#'
+#' ## Set weights
+#' weights <- rep(c(5, 2, 3, 5, 2, 2, 1, 5, 3, 1), 20)
+#'
+#' ## Fit simfast object
+#' sfobj <- simfast_m(x = preds, y = y, weights = weights,
+#'                    family = binomial(link = 'logit'))
+#'
+#' ## predict link values
+#' predict(sfobj)
+#'
+#' ## predict response values with new data
+#' newpreds <- matrix(stats::runif(d*200, min = -5, max = 5), 200, d)
+#' predict(sfobj, newdata = newpreds, type = 'response', rule = 1)
+#'
+#' ## Plot simfast object yhat vs. indexvals showcasing weights
+#' ## and compare to the true ridge function fn2
+#' plot(sfobj, xlim = c(-5, 5))
+#' curve(fn2, add=TRUE)
+#'
+#' ## 3-D Interactive plot of observed predictors vs. yhat
+#' ## Requires library(plotly)
+#' plot(sfobj, predictor = TRUE)
+#'
+#'
 simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TRUE,
-                           method = 'stochastic', multialpha = FALSE, B = 10000,
+                           method = 'stochastic', multiout = FALSE, B = 10000,
                            k = 100, kappa0 = 100, tol = 1e-10, max.iter = 20) {
   if (NCOL(y) == 1) {
     if (is.character(y)) y <- factor(y)
@@ -148,15 +204,15 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
   yhat <- firstrow(fit$mle)
   indexvals <- firstrow(fit$zhat)
   pdim <- NCOL(x)
+  alphahat <- firstrow(fit$alphahat)
 
-  obj <- list('yhat' = yhat, 'indexvals' = indexvals, 'weights' = weights,
-              'family' = family, 'link' = linkfun,'tol' = tol, 'iter' = iter,
-              'method' = method, 'model' = NULL, 'intercept' = NULL)
+  obj <- list('alphahat' = alphahat, 'yhat' = yhat, 'indexvals' = indexvals,
+              'weights' = weights, 'family' = family, 'link' = linkfun, 'tol' = tol,
+              'iter' = iter, 'method' = method, 'model' = NULL, 'intercept' = NULL,
+              'offset' = NULL)
 
-  if (multialpha == TRUE) {
-    obj <- append(list("alphahat" = fit$alphahat), obj)
-  } else {
-    obj <- append(list("alphahat" = firstrow(fit$alphahat)), obj)
+  if (multiout == TRUE) {
+    obj <- append(obj, list("multialphahat" = fit$alphahat, "multiyhat" = fit$mle))
   }
 
   if (returndata == TRUE) {
@@ -180,15 +236,18 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'
 #' @param formula an object of class \code{\link{formula}}, which is a symbolic
 #'     description of the model to be fitted. By default, intercepts are NOT
-#'     included, so change argument \code{intercept = TRUE} to include one. NOTE: When
-#'     including categorical predictors, be sure that you set
-#'     \code{options('contrasts')} in your global options to a desired setting. This
-#'     function was designed with the \code{'contr.treatment'} option in mind.
+#'     included, so change argument \code{intercept = TRUE} to include one. When
+#'     including categorical predictors, be sure to set
+#'     \code{options('contrasts')} in your global options to a desired setting.
 #'     For \code{'binomial'} response, the vector can be binary values or a vector of
-#'     proportions, as long as a proper weight vector (a vector of the denominators
-#'     of the proportions, see details) is provided. Categorical vectors (character
-#'     strings or factors) will automatically be translated into logical vector with
-#'     the baseline factor level a 'success' (takes value \code{1}).
+#'     proportions, but should include proper weight vector (a vector of the denominators
+#'     of the proportions) is provided. Categorical vectors (character strings or
+#'     factors) will automatically be translated into a logical vector with
+#'     the baseline factor level a 'success' (takes value \code{1}). Poisson responses
+#'     can be integer counts or rates, but should include a proper weight vector (a
+#'     vector of the denominators of the rates). Offsets can also be specified in the
+#'     formula. Note that multiple offsets are combined, and that duplicate
+#'     offsets are only counted once.
 #' @param data optional data frame (or object coercible to a data frame by
 #'     \code{\link{as.data.frame}}) containing the variables in the model. Variables
 #'     are taken from \code{environment(formula)} if not found in \code{data}.
@@ -214,8 +273,9 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'     search. If \code{d} does not equal \code{2}, \code{simfast} will give a
 #'     warning and automatically continue with a stochastic search (the default
 #'     method, \code{method = 'stochastic'}).
-#' @param multialpha optional boolean, if \code{TRUE}, will return more than one
-#'     \code{indexvec} if available (see Value section and Details).
+#' @param multiout optional boolean, if \code{TRUE}, will return more than one
+#'     \code{alpha} vector and \code{yhat} vector if available, seperately from the main
+#'     estimate (see Value section and Details).
 #' @param B positive integer, sets number of index vectors to try when maximizing
 #'     the likelihood
 #' @param k positive integer, less than \code{B}
@@ -231,8 +291,7 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'       fit the model, otherwise it is \code{NULL}.}
 #'  \item{\code{y}}{if \code{returndata = TRUE}, this is the response vector used to
 #'       fit the model, otherwise it is \code{NULL}.}
-#'  \item{\code{alphahat}}{\code{alpha} value estimated by the model fit, will return a
-#'       matrix of multiple vectors if \code{multialpha = TRUE}}
+#'  \item{\code{alphahat}}{\code{alpha} value estimated by the model fit}
 #'  \item{\code{yhat}}{vector of estimated response values}
 #'  \item{\code{indexvals}}{vector of estimated single index values, the matrix product
 #'      of \code{x} and \code{alphahat}}
@@ -248,6 +307,14 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'      which is used to generate the \code{\link{model.matrix}} and
 #'      \code{\link{model.response}} to pass to \code{simfast_m}}
 #'  \item{\code{intercept}}{the \code{intercept} rule selected in the argument}
+#'  \item{\code{offset}}{a numeric vector specifying the offset provided in the
+#'      model formula.}
+#'  \item{\code{multialphahat}}{returns all estimated \code{alphahat} vectors
+#'      if \code{multiout = TRUE} as a matrix if there is more than one, and
+#'      as a vector if there is only one.}
+#'  \item{\code{multiyhat}}{returns all estimated \code{yhat} vectors
+#'      if \code{multiout = TRUE} as a matrix if there is more than one, and
+#'      as a vector if there is only one.}
 #' }
 #'
 #'
@@ -261,9 +328,12 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'     Konstantinos Ntentes \email{kntentes@@yorku.ca} (maintainer)
 #'
 #' @examples
+#'
+#'
+#'
 simfast <- function(formula, data, intercept = FALSE, weights = NULL,
                     family = 'gaussian', returnmodel = TRUE, returndata = TRUE,
-                    method = 'stochastic', multialpha = FALSE, B = 10000, k = 100,
+                    method = 'stochastic', multiout = FALSE, B = 10000, k = 100,
                     kappa0 = 100, tol = 1e-10, max.iter = 20){
   if (missing(data)) {
     data <- environment(formula)
@@ -278,20 +348,51 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL,
   mf$na.action <- "na.omit"
   mf[[1]] <- quote(stats::model.frame)
   mf <- eval(expr = mf, envir = parent.frame())
-  mr <- mf
   mm <- attr(mf, which = "terms")
   if (intercept == FALSE){
     attr(mm, "intercept") <- 0
   }
-  xm <- stats::model.matrix(object = mm)
-  ym <- stats::model.response(mr)
+  xm <- stats::model.matrix(object = mm, data = mf)
+  ym <- stats::model.response(mf)
+  os <- stats::model.offset(mf)
+  if (is.character(family))
+    family <- get(family, mode = "function", envir = parent.frame())
+  if (is.function(family))
+    family <- family()
+  famname <- family[[1]]
+  if (!famname %in% c('gaussian', 'binomial', 'poisson', 'Gamma')) {
+    stop('Simfast does not support specified family')
+  }
+  if (is.null(family$family)) {
+    print(family)
+    stop("Specified family cannot be found.")
+  }
+  linkinv <- family$linkinv
+  linkfun <- family$linkfun
+  if (!is.null(os)){
+    if (!is.null(weights)){
+      weights <- weights * linkinv(os)
+    } else {
+      weights <- linkinv(os)
+    }
+    oldy <- ym
+    ym <- linkfun(ym) - os
+    ym <- linkinv(ym)
+  }
   simfit <- simfast_m(x = xm, y = ym, weights = weights, family = family,
-                      returndata = returndata, method = method, multialpha = multialpha,
+                      returndata = returndata, method = method, multiout = multiout,
                       B = B, k = k, kappa0 = kappa0, tol = tol, max.iter = max.iter)
   if (returnmodel == TRUE){
     simfit[['model']] <- mm
   }
   simfit[['intercept']] <- intercept
+  if (!is.null(os)){
+    simfit[['y']] <- oldy
+    yhat <- simfit[['yhat']]
+    yhat <- linkfun(yhat) + os
+    simfit[['yhat']] <- linkinv(yhat)
+    simfit[['offset']] <- os
+  }
   return(simfit)
 }
 

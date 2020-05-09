@@ -36,6 +36,11 @@ a numeric vector of the specified prediction values
 Predict values of a \code{simfast} object with a data frame or a matrix.
 Can also be called by running \code{\link{predict}} on \code{simfast} object.
 }
+\examples{
+
+# See the example provided in the \code{\link{simfast}} documentation.
+
+}
 \author{
 Hanna Jankowski \email{hkj@yorku.ca}
     Konstantinos Ntentes \email{kntentes@yorku.ca} (maintainer)

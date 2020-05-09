@@ -14,7 +14,7 @@ simfast(
   returnmodel = TRUE,
   returndata = TRUE,
   method = "stochastic",
-  multialpha = FALSE,
+  multiout = FALSE,
   B = 10000,
   k = 100,
   kappa0 = 100,
@@ -67,8 +67,9 @@ search. If \code{d} does not equal \code{2}, \code{simfast} will give a
 warning and automatically continue with a stochastic search (the default
 method, \code{method = 'stochastic'}).}
 
-\item{multialpha}{optional boolean, if \code{TRUE}, will return more than one
-\code{indexvec} if available (see Value section and Details).}
+\item{multiout}{optional boolean, if \code{TRUE}, will return more than one
+\code{alpha} vector and \code{yhat} vector if available, seperately from the main
+estimate (see Value section and Details).}
 
 \item{B}{positive integer, sets number of index vectors to try when maximizing
 the likelihood}
@@ -90,8 +91,7 @@ an object of class \code{simfast}, with the following structure:
 fit the model, otherwise it is \code{NULL}.}
 \item{\code{y}}{if \code{returndata = TRUE}, this is the response vector used to
 fit the model, otherwise it is \code{NULL}.}
-\item{\code{alphahat}}{\code{alpha} value estimated by the model fit, will return a
-matrix of multiple vectors if \code{multialpha = TRUE}}
+\item{\code{alphahat}}{\code{alpha} value estimated by the model fit}
 \item{\code{yhat}}{vector of estimated response values}
 \item{\code{indexvals}}{vector of estimated single index values, the matrix product
 of \code{x} and \code{alphahat}}
@@ -107,6 +107,12 @@ of \code{x} and \code{alphahat}}
 which is used to generate the \code{\link{model.matrix}} and
 \code{\link{model.response}} to pass to \code{simfast_m}}
 \item{\code{intercept}}{the \code{intercept} rule selected in the argument}
+\item{\code{multialphahat}}{returns all estimated \code{alphahat} vectors
+if \code{multiout = TRUE} as a matrix if there is more than one, and
+as a vector if there is only one.}
+\item{\code{multiyhat}}{returns all estimated \code{yhat} vectors
+if \code{multiout = TRUE} as a matrix if there is more than one, and
+as a vector if there is only one.}
 }
 }
 \description{
@@ -114,6 +120,11 @@ Fitting isotonic generalized single-index regression models via maximum likeliho
 with support for estimating response values with \code{\link{predict}} and plotting
 values with \code{\link{plot}}. Also includes support for formula objects, data frames,
 and built-in regression families (see Arguments).
+}
+\examples{
+
+
+
 }
 \seealso{
 \code{\link{simfast_m}} for providing model matrices instead of a formula.

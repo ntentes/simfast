@@ -11,7 +11,7 @@ simfast_m(
   family = "gaussian",
   returndata = TRUE,
   method = "stochastic",
-  multialpha = FALSE,
+  multiout = FALSE,
   B = 10000,
   k = 100,
   kappa0 = 100,
@@ -49,8 +49,9 @@ search. If \code{d} does not equal \code{2}, \code{simfast_m} will give a
 warning and automatically continue with a stochastic search (the default
 method, \code{method = 'stochastic'}).}
 
-\item{multialpha}{optional boolean, if \code{TRUE}, will return more than one
-\code{alpha} vector if available (see Value section and Details).}
+\item{multiout}{optional boolean, if \code{TRUE}, will return more than one
+\code{alpha} vector and \code{yhat} vector if available, seperately from the main
+estimate (see Value section and Details).}
 
 \item{B}{positive integer, sets number of index vectors to try when maximizing
 the likelihood}
@@ -72,8 +73,7 @@ an object of class \code{simfast}, with the following structure:
 fit the model, otherwise it is \code{NULL}.}
 \item{\code{y}}{if \code{returndata = TRUE}, this is the response vector used to
 fit the model, otherwise it is \code{NULL}.}
-\item{\code{alphahat}}{\code{alpha} value estimated by the model fit, will return a
-matrix of multiple vectors if \code{multialpha = TRUE}}
+\item{\code{alphahat}}{\code{alpha} vector estimated by the model fit}
 \item{\code{yhat}}{vector of estimated response values}
 \item{\code{indexvals}}{vector of estimated single index values, the matrix product
 of \code{x} and \code{alphahat}}
@@ -87,6 +87,12 @@ of \code{x} and \code{alphahat}}
 \item{\code{method}}{\code{method} used for fitting the model}
 \item{\code{model}}{returns \code{NULL} when calling \code{simfast_m}}
 \item{\code{intercept}}{returns \code{NULL} when calling \code{simfast_m}}
+\item{\code{multialphahat}}{returns all estimated \code{alphahat} vectors
+if \code{multiout = TRUE} as a matrix if there is more than one, and
+as a vector if there is only one.}
+\item{\code{multiyhat}}{returns all estimated \code{yhat} vectors
+if \code{multiout = TRUE} as a matrix if there is more than one, and
+as a vector if there is only one.}
 }
 }
 \description{
@@ -94,6 +100,57 @@ Fitting isotonic generalized single-index regression models via maximum likeliho
 with support for estimating response values with \code{\link{predict}} and plotting
 values with \code{\link{plot}}. Also includes support for built-in regression families
 (see Arguments), and formula support through the wrapper \code{\link{simfast}}.
+}
+\examples{
+
+## Generate predictor data uniformly on [-4, 4]^2
+d <- 2
+preds <- matrix(stats::runif(d*200, min = -4, max = 4), 200, d)
+
+## Choose true alpha in R^2 with magnitude 1
+alpha <- c(-2, 0.5)/sqrt(4.25)
+
+## Set true ridge function (piecewise)
+fn <- function(x){
+## RANGE              ## VALUES
+(x< -3)             * (x+5)               +
+(x< -1)*(x>= -3)    * 2                   +
+(x< 1.525)*(x>= -1) * (0.1*(x + 1)^3 + 2) +
+(x>=1.525)          * (0.4*x + 3)
+}
+
+fn2 <- function(x) fn(x)/5          # scale to range of [0,1]
+graphics::plot(fn2, xlim = c(-5,5)) # inspect plot of ridge
+
+## Generate binomial response values with the same number of rows
+indexvals <- preds \%*\% alpha
+probs  <- fn2(indexvals)
+y <- stats::rbinom(200, size = 1, prob = probs)
+
+## Set weights
+weights <- rep(c(5, 2, 3, 5, 2, 2, 1, 5, 3, 1), 20)
+
+## Fit simfast object
+sfobj <- simfast_m(x = preds, y = y, weights = weights,
+                   family = binomial(link = 'logit'))
+
+## predict link values
+predict(sfobj)
+
+## predict response values with new data
+newpreds <- matrix(stats::runif(d*200, min = -5, max = 5), 200, d)
+predict(sfobj, newdata = newpreds, type = 'response', rule = 1)
+
+## Plot simfast object yhat vs. indexvals showcasing weights
+## and compare to the true ridge function fn2
+plot(sfobj, xlim = c(-5, 5))
+curve(fn2, add=TRUE)
+
+## 3-D Interactive plot of observed predictors vs. yhat
+## Requires library(plotly)
+plot(sfobj, predictor = TRUE)
+
+
 }
 \seealso{
 \code{\link{simfast}} for formula support.
