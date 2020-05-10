@@ -132,6 +132,7 @@ esoph <- datasets::esoph
 str(esoph) # note that three variables are ordered factors
 
 ## subset the data frame for training
+set.seed(1) # keep from getting data OOB warning in predict()
 nobs <- NROW(esoph)
 ind <- sample(1:nobs, size = round(nobs * 0.8))
 esophtrain <- esoph[ind, ]

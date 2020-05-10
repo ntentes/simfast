@@ -83,6 +83,7 @@
 #' @examples
 #'
 #' ## Generate predictor data uniformly on [-4, 4]^2
+#' set.seed(1)
 #' d <- 2
 #' preds <- matrix(stats::runif(d*200, min = -4, max = 4), 200, d)
 #'
@@ -91,11 +92,11 @@
 #'
 #' ## Set true ridge function (piecewise)
 #' fn <- function(x){
-#' ## RANGE              ## VALUES
-#' (x< -3)             * (x+5)               +
-#' (x< -1)*(x>= -3)    * 2                   +
-#' (x< 1.525)*(x>= -1) * (0.1*(x + 1)^3 + 2) +
-#' (x>=1.525)          * (0.4*x + 3)
+#'   ## RANGE              ## VALUES
+#'   (x< -3)             * (x+5)               +
+#'   (x< -1)*(x>= -3)    * 2                   +
+#'   (x< 1.525)*(x>= -1) * (0.1*(x + 1)^3 + 2) +
+#'   (x>=1.525)          * (0.4*x + 3)
 #' }
 #'
 #' fn2 <- function(x) fn(x)/5          # scale to range of [0,1]
@@ -113,12 +114,15 @@
 #' sfobj <- simfast_m(x = preds, y = y, weights = weights,
 #'                    family = binomial(link = 'logit'))
 #'
-#' ## predict link values
-#' predict(sfobj)
+#' ## predict link values and inspect a subset
+#' predlink <- predict(sfobj)
+#' predlink[1:20]
 #'
-#' ## predict response values with new data
-#' newpreds <- matrix(stats::runif(d*200, min = -5, max = 5), 200, d)
-#' predict(sfobj, newdata = newpreds, type = 'response', rule = 1)
+#' ## predict response values with new data and inspect
+#' newpreds <- matrix(stats::runif(d*200, min = -3, max = 3), 200, d)
+#' predresp <- predict(sfobj, newdata = newpreds,
+#'                     type = 'response', rule = 1)
+#' predresp[1:20]
 #'
 #' ## Plot simfast object yhat vs. indexvals showcasing weights
 #' ## and compare to the true ridge function fn2
