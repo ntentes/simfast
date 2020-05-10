@@ -29,7 +29,7 @@ mat_pred <- function(object, newdata, type, rule, fn, interp, link){
   if (NCOL(newdata) != length(firstrow(object$alphahat))) {
     stop("'newdata' must have the same number of columns as object$x")
   }
-  newivs   <- newdata %*% firstrow(object$alphahat)
+  newivs   <- as.vector(newdata %*% firstrow(object$alphahat))
   oob      <- (newivs < leftlim | newivs > rightlim)
   if (sum(oob) > 0){
     if (rule == 1) {
@@ -44,12 +44,13 @@ mat_pred <- function(object, newdata, type, rule, fn, interp, link){
     stop("'newdata' must be a numeric matrix or object$model must contain a model.frame")
   } else {
     newyhat <- fn(newivs)
-    if (type == 'response') {
+    if (type == 'link') {
       if (rule == 2) {
         names(newyhat) <- rwnms
         return(newyhat)
       } else {
-        newyhat[oob] <- interp(newivs[oob])
+
+        newyhat[oob] <- interp(newivs)[oob]
         names(newyhat) <- rwnms
         return(newyhat)
       }
@@ -59,7 +60,7 @@ mat_pred <- function(object, newdata, type, rule, fn, interp, link){
         names(newyhat) <- rwnms
         return(newyhat)
       } else {
-        newyhat[oob] <- interp(newivs[oob])
+        newyhat[oob] <- interp(newivs)[oob]
         newyhat <- link(newyhat)
         names(newyhat) <- rwnms
         return(newyhat)
@@ -119,22 +120,27 @@ predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){
       return(etahat)
     }
   }
-  predfun <- stats::approxfun(x = object$indexvals, y = object$yhat,
+  oldy <- object$yhat
+  osy <- oldy
+  linkind <- sapply(osy, family$validmu)
+  osy <- linkfun(osy[linkind])
+  predfun <- stats::approxfun(x = object$indexvals[linkind], y = osy,
                               method = "linear", rule = 2, ties = mean)
   interp  <- function(ind) {
-    x1 <- min(object$indexvals)
-    x2 <- max(object$indexvals)
-    y1 <- min(object$yhat)
-    y2 <- max(object$yhat)
+    x1 <- min(object$indexvals[linkind])
+    x2 <- max(object$indexvals[linkind])
+    y1 <- ifelse(family[[1]] == 'Gamma',
+                 max(min(osy), 0), min(osy))
+    y2 <- max(osy)
     m  <- (y2-y1)/(x2-x1)
     b  <- y2 - x2*m
-    yhatint <- m * ind + b
-    return(yhatint)
+    ylink <- m * ind + b
+    return(ylink)
   }
   if (is.null(object$model)) {
-    if (is.matrix(newdata)){
-      predvec <- mat_pred(object = object, newdata = newdata, type = type, rule = rule,
-                        fn = predfun, interp = interp, link = linkfun)
+    if (is.matrix(newdata)) {
+      predvec <- mat_pred(object = object, newdata = newdata, type = type,
+                          rule = rule, fn = predfun, interp = interp, link = linkinv)
       return(predvec)
     } else {
       newdata <- as.matrix(newdata)
@@ -142,8 +148,8 @@ predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){
         stop("If model = NULL in the simfast object, then a numeric matrix
            must be provided, not a data frame.")
       } else {
-        predvec <- mat_pred(object = object, newdata = newdata, type = type, rule = rule,
-                            fn = predfun, interp = interp, link = linkfun)
+        predvec <- mat_pred(object = object, newdata = newdata, type = type,
+                            rule = rule, fn = predfun, interp = interp, link = linkinv)
         return(predvec)
       }
     }
@@ -162,20 +168,13 @@ predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){
       newoffset <- stats::model.offset(newmf)
       oldy <- object$yhat
       osy <- oldy
-      linkind <- !is.na(linkfun(osy)) # vals in range of link
-      linvind <- !is.na(linkinv(osy))
-      if (sum(linkind) >= sum(linkinv)){
-        osy <- linkfun(osy[linkind]) - object$offset[linkind]
-        osy <- linkinv(osy)
-      } else {
-        osy <- osy[linkinv] - linkinv(object$offset[linkinv])
-        osy <- linkfun(osy)
-      }
-      pfos <- stats::approxfun(x = object$indexvals, y = osy,
+      linkind <- sapply(osy, family$validmu) # vals in range of link
+      osy <- linkfun(osy[linkind]) - object$offset[linkind]
+      pfos <- stats::approxfun(x = object$indexvals[linkind], y = osy,
                                method = "linear", rule = 2, ties = mean)
       intos  <- function(ind) {
-        x1 <- min(object$indexvals[osyind])
-        x2 <- max(object$indexvals[osyind])
+        x1 <- min(object$indexvals[linkind])
+        x2 <- max(object$indexvals[linkind])
         y1 <- min(osy)
         y2 <- max(osy)
         m  <- (y2-y1)/(x2-x1)
@@ -184,7 +183,7 @@ predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){
         return(yhatint)
       }
       predvec <- mat_pred(object = object, newdata = newmm, type = 'link', rule = rule,
-                          fn = pfos, interp = intos, link = linkfun)
+                          fn = pfos, interp = intos, link = linkinv)
       yhatos <- predvec + newoffset
       if (type == 'link') {
         predvec <- yhatos
@@ -195,7 +194,7 @@ predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){
       }
     } else {
       predvec <- mat_pred(object = object, newdata = newmm, type = type, rule = rule,
-                        fn = predfun, interp = interp, link = linkfun)
+                        fn = predfun, interp = interp, link = linkinv)
       return(predvec)
     }
   }
