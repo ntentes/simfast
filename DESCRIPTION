@@ -1,7 +1,7 @@
 Package: simfast
 Type: Package
 Title: Isotonic Single-Index Regression Models with Generalized Link Functions
-Version: 0.1.0.9100
+Version: 0.1.1
 Description: Fitting isotonic generalized single-index regression models 
     via maximum likelihood and exact methods with formula support and 
     multiple distribution family and link function support.
@@ -18,6 +18,6 @@ Suggests:
 RoxygenNote: 7.1.0
 Authors@R: c(
     person("Hanna", "Jankowski", email = "hkj@mathstat.yorku.ca", role = "aut"),
-    person("Konstantinos", "Ntentes", email = "kntentes@yorku.ca", role = "cre"))
+    person("Konstantinos", "Ntentes", email = "kntentes@yorku.ca", role = c("cre", "aut"))
 URL: https://github.com/ntentes/simfast
 BugReports: https://github.com/ntentes/simfast/issues
