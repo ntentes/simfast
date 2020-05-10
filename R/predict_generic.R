@@ -31,6 +31,15 @@ mat_pred <- function(object, newdata, type, rule, fn, interp, link){
   }
   newivs   <- newdata %*% firstrow(object$alphahat)
   oob      <- (newivs < leftlim | newivs > rightlim)
+  if (sum(oob) > 0){
+    if (rule == 1) {
+      warning("Some predictors are outside bounds of original data, linear extrapolation
+              will be used for these values")
+    } else {
+      warning("Some predictors are outside bounds of original data, the closest edge point
+              will be used to predict these values")
+    }
+  }
   if (!is.numeric(newdata)) {
     stop("'newdata' must be a numeric matrix or object$model must contain a model.frame")
   } else {
@@ -153,13 +162,20 @@ predict.simfast <- function(object, newdata, type = 'link', rule = 1, ...){
       newoffset <- stats::model.offset(newmf)
       oldy <- object$yhat
       osy <- oldy
-      osy <- linkfun(osy) - object$offset
-      osy <- linkinv(osy)
+      linkind <- !is.na(linkfun(osy)) # vals in range of link
+      linvind <- !is.na(linkinv(osy))
+      if (sum(linkind) >= sum(linkinv)){
+        osy <- linkfun(osy[linkind]) - object$offset[linkind]
+        osy <- linkinv(osy)
+      } else {
+        osy <- osy[linkinv] - linkinv(object$offset[linkinv])
+        osy <- linkfun(osy)
+      }
       pfos <- stats::approxfun(x = object$indexvals, y = osy,
                                method = "linear", rule = 2, ties = mean)
       intos  <- function(ind) {
-        x1 <- min(object$indexvals)
-        x2 <- max(object$indexvals)
+        x1 <- min(object$indexvals[osyind])
+        x2 <- max(object$indexvals[osyind])
         y1 <- min(osy)
         y2 <- max(osy)
         m  <- (y2-y1)/(x2-x1)
