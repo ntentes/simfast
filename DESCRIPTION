@@ -2,7 +2,7 @@ Package: simfast
 Type: Package
 Title: Isotonic Single-Index Regression Models with Generalized Link Functions
 Version: 0.1.1
-Description: Fitting isotonic generalized single-index regression models 
+Description: Fitting isotonic single-index generalized regression models 
     via maximum likelihood and exact methods with formula support and 
     multiple distribution family and link function support.
 License: GPL-3
