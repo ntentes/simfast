@@ -34,13 +34,27 @@
 #'     estimate (see Value section and Details).
 #' @param B positive integer, sets number of index vectors to try when maximizing
 #'     the likelihood
-#' @param k positive integer, less than \code{B}
-#' @param kappa0 positive integer, initial value of kappa
+#' @param k positive integer, algorithmic parameter, more info coming, should be less
+#'     than \code{B}
+#' @param kappa0 positive integer, initial value of kappa, more info coming
 #' @param tol numeric, sets tolerance for convergence for \code{method = 'stochastic'}.
 #'     Will give value of \code{0} if \code{'exact'} is used.
 #' @param max.iter positive integer limiting number of iterations for
 #'     \code{method = 'stochastic'}
 #'
+#' @details
+#'
+#' For i=1,...,n, let X_i be the d-dimensional covariates and Y_i be the corresponding
+#' one-dimensional response.   The isotonic single index model is written as
+#'
+#' g(mu) = f(a^T x),
+#'
+#' where x=(x_1,...,x_d)^T, g is a known link function, a is an d x 1 index vector,
+#' and f is a nondecreasing function.  The algorithm finds the maximum likelihood
+#' estimate of both f and a, assuming that f is an increasing function.  Implementaton
+#' details can be found in ADD REFs, where theoretical justification of our estimator
+#' (i.e. uniform consistency) is also given.   For the identifiability of isotonic
+#' single index models, we refer to REFs.
 #'
 #' @return an object of class \code{simfast}, with the following structure:
 #' \describe{
@@ -284,12 +298,27 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'     estimate (see Value section and Details).
 #' @param B positive integer, sets number of index vectors to try when maximizing
 #'     the likelihood
-#' @param k positive integer, less than \code{B}
-#' @param kappa0 positive integer, initial value of kappa
+#' @param k positive integer, algorithmic parameter, more info coming, should be less
+#'     than \code{B}
+#' @param kappa0 positive integer, initial value of kappa, more info coming
 #' @param tol numeric, sets tolerance for convergence for \code{method = 'stochastic'}.
 #'     Will give value of \code{0} if \code{'exact'} is used.
 #' @param max.iter positive integer limiting number of iterations for
 #'     \code{method = 'stochastic'}
+#'
+#' @details
+#'
+#'  For i=1,...,n, let X_i be the d-dimensional covariates and Y_i be the corresponding
+#' one-dimensional response.   The isotonic single index model is written as
+#'
+#' g(mu) = f(a^T x),
+#'
+#' where x=(x_1,...,x_d)^T, g is a known link function, a is an d x 1 index vector,
+#' and f is a nondecreasing function.  The algorithm finds the maximum likelihood
+#' estimate of both f and a, assuming that f is an increasing function.  Implementaton
+#' details can be found in ADD REFs, where theoretical justification of our estimator
+#' (i.e. uniform consistency) is also given.   For the identifiability of isotonic
+#' single index models, we refer to REFs.
 #'
 #' @return an object of class \code{simfast}, with the following structure:
 #' \describe{
