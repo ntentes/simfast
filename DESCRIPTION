@@ -17,7 +17,7 @@ Suggests:
     rmarkdown
 RoxygenNote: 7.1.0
 Authors@R: c(
-    person("Hanna", "Jankowski", email = "hkj@mathstat.yorku.ca", role = "aut"),
-    person("Konstantinos", "Ntentes", email = "kntentes@yorku.ca", role = c("cre", "aut"))
+    person("Hanna", "Jankowski", role = "aut", email = "hkj@yorku.ca"),
+    person("Konstantinos", "Ntentes", role = c("cre", "aut"), email = "kntentes@yorku.ca"))
 URL: https://github.com/ntentes/simfast
 BugReports: https://github.com/ntentes/simfast/issues

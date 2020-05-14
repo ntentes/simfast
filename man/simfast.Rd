@@ -77,9 +77,10 @@ estimate (see Value section and Details).}
 \item{B}{positive integer, sets number of index vectors to try when maximizing
 the likelihood}
 
-\item{k}{positive integer, less than \code{B}}
+\item{k}{positive integer, algorithmic parameter, more info coming, should be less
+than \code{B}}
 
-\item{kappa0}{positive integer, initial value of kappa}
+\item{kappa0}{positive integer, initial value of kappa, more info coming}
 
 \item{tol}{numeric, sets tolerance for convergence for \code{method = 'stochastic'}.
 Will give value of \code{0} if \code{'exact'} is used.}
@@ -124,6 +125,19 @@ Fitting isotonic generalized single-index regression models via maximum likeliho
 with support for estimating response values with \code{\link{predict}} and plotting
 values with \code{\link{plot}}. Also includes support for formula objects, data frames,
 and built-in regression families (see Arguments).
+}
+\details{
+For i=1,...,n, let X_i be the d-dimensional covariates and Y_i be the corresponding
+one-dimensional response.   The isotonic single index model is written as
+
+g(mu) = f(a^T x),
+
+where x=(x_1,...,x_d)^T, g is a known link function, a is an d x 1 index vector,
+and f is a nondecreasing function.  The algorithm finds the maximum likelihood
+estimate of both f and a, assuming that f is an increasing function.  Implementaton
+details can be found in ADD REFs, where theoretical justification of our estimator
+(i.e. uniform consistency) is also given.   For the identifiability of isotonic
+single index models, we refer to REFs.
 }
 \examples{
 

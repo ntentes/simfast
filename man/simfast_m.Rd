@@ -56,9 +56,10 @@ estimate (see Value section and Details).}
 \item{B}{positive integer, sets number of index vectors to try when maximizing
 the likelihood}
 
-\item{k}{positive integer, less than \code{B}}
+\item{k}{positive integer, algorithmic parameter, more info coming, should be less
+than \code{B}}
 
-\item{kappa0}{positive integer, initial value of kappa}
+\item{kappa0}{positive integer, initial value of kappa, more info coming}
 
 \item{tol}{numeric, sets tolerance for convergence for \code{method = 'stochastic'}.
 Will give value of \code{0} if \code{'exact'} is used.}
@@ -101,9 +102,23 @@ with support for estimating response values with \code{\link{predict}} and plott
 values with \code{\link{plot}}. Also includes support for built-in regression families
 (see Arguments), and formula support through the wrapper \code{\link{simfast}}.
 }
+\details{
+For i=1,...,n, let X_i be the d-dimensional covariates and Y_i be the corresponding
+one-dimensional response.   The isotonic single index model is written as
+
+g(mu) = f(a^T x),
+
+where x=(x_1,...,x_d)^T, g is a known link function, a is an d x 1 index vector,
+and f is a nondecreasing function.  The algorithm finds the maximum likelihood
+estimate of both f and a, assuming that f is an increasing function.  Implementaton
+details can be found in ADD REFs, where theoretical justification of our estimator
+(i.e. uniform consistency) is also given.   For the identifiability of isotonic
+single index models, we refer to REFs.
+}
 \examples{
 
 ## Generate predictor data uniformly on [-4, 4]^2
+set.seed(1)
 d <- 2
 preds <- matrix(stats::runif(d*200, min = -4, max = 4), 200, d)
 
@@ -112,11 +127,11 @@ alpha <- c(-2, 0.5)/sqrt(4.25)
 
 ## Set true ridge function (piecewise)
 fn <- function(x){
-## RANGE              ## VALUES
-(x< -3)             * (x+5)               +
-(x< -1)*(x>= -3)    * 2                   +
-(x< 1.525)*(x>= -1) * (0.1*(x + 1)^3 + 2) +
-(x>=1.525)          * (0.4*x + 3)
+  ## RANGE              ## VALUES
+  (x< -3)             * (x+5)               +
+  (x< -1)*(x>= -3)    * 2                   +
+  (x< 1.525)*(x>= -1) * (0.1*(x + 1)^3 + 2) +
+  (x>=1.525)          * (0.4*x + 3)
 }
 
 fn2 <- function(x) fn(x)/5          # scale to range of [0,1]
@@ -134,12 +149,15 @@ weights <- rep(c(5, 2, 3, 5, 2, 2, 1, 5, 3, 1), 20)
 sfobj <- simfast_m(x = preds, y = y, weights = weights,
                    family = binomial(link = 'logit'))
 
-## predict link values
-predict(sfobj)
+## predict link values and inspect a subset
+predlink <- predict(sfobj)
+predlink[1:20]
 
-## predict response values with new data
-newpreds <- matrix(stats::runif(d*200, min = -5, max = 5), 200, d)
-predict(sfobj, newdata = newpreds, type = 'response', rule = 1)
+## predict response values with new data and inspect
+newpreds <- matrix(stats::runif(d*200, min = -3, max = 3), 200, d)
+predresp <- predict(sfobj, newdata = newpreds,
+                    type = 'response', rule = 1)
+predresp[1:20]
 
 ## Plot simfast object yhat vs. indexvals showcasing weights
 ## and compare to the true ridge function fn2
