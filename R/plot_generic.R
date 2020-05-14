@@ -41,7 +41,8 @@ plot.simfast <- function(x, points = TRUE, weights = TRUE, predictor = FALSE, of
       family <- x$family
       linkinv <- family$linkinv
       linkfun <- family$linkfun
-      yhat <- yhat - linkinv(x$offset)
+      yhat <- linkfun(yhat) - x$offset
+      yhat <- linkinv(yhat)
     }
   }
   if (predictor) {
