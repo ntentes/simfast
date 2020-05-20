@@ -29,7 +29,9 @@ find.loglik.gaussian	<-	function(mle, y, nn) {
 #' @keywords internal
 #'
 #'
-find.loglik.binomial	<-	function(mle, y, nn) {
+find.loglik.binomial	<-	function(mle, y, nn, eps) {
+  mle[mle == 0] <- eps
+  mle[mle == 1] <- 1-eps
   ll1			<-	nn*y*log(mle)
   ll1[y==0]	<-	0
   ll2			<-	nn*(1-y)*log(1-mle)
@@ -51,7 +53,8 @@ find.loglik.binomial	<-	function(mle, y, nn) {
 #' @keywords internal
 #'
 #'
-find.loglik.poisson   <-  function(mle, y, nn) {
+find.loglik.poisson   <-  function(mle, y, nn, eps) {
+  mle[mle == 0] <- eps
   ll <- sum(nn * (y * log(mle) - mle))
   return(ll)
 }
@@ -91,13 +94,13 @@ find.loglik.gamma   <-  function(mle, y, nn) {
 #' @noRd
 #' @keywords internal
 #'
-find.loglik <- function(mle, y, nn, family) {
+find.loglik <- function(mle, y, nn, family, eps) {
   if (family == 'gaussian') {
     find.loglik.gaussian(mle, y, nn)
   } else if (family == 'binomial') {
-    find.loglik.binomial(mle, y, nn)
+    find.loglik.binomial(mle, y, nn, eps)
   } else if (family == 'poisson') {
-    find.loglik.poisson(mle, y, nn)
+    find.loglik.poisson(mle, y, nn, eps)
   } else if (family == 'Gamma') {
     find.loglik.gamma(mle, y, nn)
   } else {

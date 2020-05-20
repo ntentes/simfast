@@ -16,7 +16,7 @@ find.pMLE	<- function(alpha, y, x, nn, family){
 	delta			<-	x %*% alpha
 	tt				<-	order(delta)
 	mle				<-	Iso::pava(y[tt],nn[tt])
-	ll				<- 	find.loglik(mle, y[tt], nn[tt], family)
+	ll				<- 	find.loglik(mle, y[tt], nn[tt], family, eps = 1e6)
 
 	return(list(ll=ll, ord=tt, mle=mle))
 }
