@@ -65,20 +65,11 @@ search.mle		<-	function(x, y, nn, family='gaussian', B=10000, k=100, kappa0=100,
     for(i in 1:B){
       res				<-	find.pMLE(alpha2[i,], y , x, nn, family)
       if(is.nan(res$ll)){
-        print(alpha2[i, ])
-        print(y)
-        print(x)
-        print(nn)
-        print(res)
       }
       loglik2[i]		<-	res$ll
     }
-    print(loglik2)
     llhat2		<-	max(loglik2)
     check		<-	(llhat2-llhat)/abs(llhat)
-    print(check)
-    print(llhat2)
-    print(llhat)
 
     if(print==TRUE) print(c(llhat, llhat2, check))
 
