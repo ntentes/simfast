@@ -437,6 +437,9 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL,
   linkinv <- family$linkinv
   linkfun <- family$linkfun
   if (!is.null(os)){
+    if (all(!is.finite(os))) {
+      stop("Offset value is not finite. Please check offset vector.")
+    }
     if (is.null(weights)) {
       oldweights <- rep(1, length(ym))
       weights <- linkinv(os)
