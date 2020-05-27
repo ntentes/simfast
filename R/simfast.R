@@ -450,8 +450,7 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL,
       comment(weights) <- 'offset'
     }
     oldy <- ym
-    ym <- linkfun(ym) - os
-    ym <- linkinv(ym)
+    ym <- ym - linkinv(os)
   }
   simfit <- simfast_m(x = xm, y = ym, weights = weights, family = family,
                       returndata = returndata, method = method, multiout = multiout,
@@ -463,8 +462,8 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL,
   if (!is.null(os)) {
     simfit[['y']] <- oldy
     yhat <- simfit[['yhat']]
-    yhat <- linkfun(yhat) + os
-    simfit[['yhat']] <- linkinv(yhat)
+    yhat <- yhat + linkinv(os)
+    simfit[['yhat']] <- yhat
     simfit[['offset']] <- os
     simfit[['weights']] <- oldweights
   }
