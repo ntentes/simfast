@@ -367,6 +367,7 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #' ## Load esophageal cancer dataset
 #' esoph <- datasets::esoph
 #' str(esoph) # note that three variables are ordered factors
+#' esoph$ntotal <- esoph$ncases + esoph$ncontrols #use as offset
 #'
 #' ## subset the data frame for training
 #' set.seed(1) # keep from getting data OOB warning in predict()
@@ -377,10 +378,10 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'
 #' ## fit a model with formulas, including ordered/regular factors
 #' ## and support for offsets. similar syntax to glm()
-#' sfobj <- simfast(ncases ~ offset(log(ncontrols)) + tobgp + alcgp + agegp,
+#' sfobj <- simfast(ncases ~ offset(log(ntotal)) + tobgp + alcgp + agegp,
 #'                  data = esophtrain, family = poisson(link = 'log'))
 #'
-#' glmfit <- glm(ncases ~ offset(log(ncontrols)) + tobgp + alcgp + agegp,
+#' glmfit <- glm(ncases ~ offset(log(ntotal)) + tobgp + alcgp + agegp,
 #'               data = esophtrain, family = poisson(link = 'log'))
 #'
 #' ## Plot the relationship of estimated responses vs. index values
@@ -389,11 +390,12 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'
 #' ## Predictions from simfast and glm rounded to nearest integer
 #' sfpred <- round(predict(sfobj, newdata = esophtest, type = 'response'))
+#' # Note that simfast only predicts 'response' values
 #' sfpred
 #' glmpred <- round(predict(glmfit, newdata = esophtest, type = 'response'))
 #' glmpred
 #'
-#' ## Compare square residuals (lower is better)
+#' ## Compare squared residuals
 #' sum((sfpred - esophtest$ncases)^2)   #simfast prediction
 #' sum((glmpred - esophtest$ncases)^2)  #glm prediction
 #'
@@ -450,7 +452,8 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL,
       comment(weights) <- 'offset'
     }
     oldy <- ym
-    ym <- ym - linkinv(os)
+    ym <- linkfun(ym) - os
+    ym <- linkinv(ym)
   }
   simfit <- simfast_m(x = xm, y = ym, weights = weights, family = family,
                       returndata = returndata, method = method, multiout = multiout,
@@ -462,8 +465,8 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL,
   if (!is.null(os)) {
     simfit[['y']] <- oldy
     yhat <- simfit[['yhat']]
-    yhat <- yhat + linkinv(os)
-    simfit[['yhat']] <- yhat
+    yhat <- linkfun(yhat) + os
+    simfit[['yhat']] <- linkinv(yhat)
     simfit[['offset']] <- os
     simfit[['weights']] <- oldweights
   }
