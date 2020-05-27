@@ -1,15 +1,15 @@
 #' Stochastic Search Algorithm for Isotonic Single-Index Regression Fitting (Internal)
 #'
 #' @param x matrix of predictor values
-#' @param y vector of reponse values
+#' @param y vector of response values
 #' @param nn vector of positive integer weights
 #' @param family \code{\link{family}} object passed by \code{simfast}
 #' @param B positive integer, number of index vectors to test
-#' @param k positive integer, number of alpha tests per iter
+#' @param k positive integer, number of alpha tests per iteration
 #' @param kappa0 positive integer, kappa0
 #' @param tol numeric, convergence tolerance
 #' @param max.iter numeric, maximum number of iterations allowed
-#' @param print boolean, prints number and tolerance at each iteration step
+#' @param print logical, prints number and tolerance at each iteration step
 #'
 #'
 #' @return list including N(>=1) alpha index estimates in matrix form, N maximum
@@ -123,6 +123,11 @@ find.mle	<-	function(x, y, nn, family='gaussian'){
 
   m		<-	length(x[,1])
 
+  pbseq <- round(seq(from = 0, to = 10, by = 10/(m-1)))
+
+  total <- 100
+  pb <- utils::txtProgressBar(min = 0, max = total, style = 3)
+
   theta	<-	matrix(NA,m,m)
   for(i in 1:(m-1)){
     for(j in (i+1):m){
@@ -131,6 +136,7 @@ find.mle	<-	function(x, y, nn, family='gaussian'){
       z			<-	c(-d[2], d[1])
       theta[i,j]	<-	my.inv(z)
     }
+    utils::setTxtProgressBar(pb, pbseq[i])
   }
 
   phi		<-	as.vector(theta)
@@ -144,10 +150,13 @@ find.mle	<-	function(x, y, nn, family='gaussian'){
 
   loglik	<-	rep(0, length(beta))
 
+  pbseq <- round(seq(from = 11, to = 90, by = (90-11)/length(beta)))
+
   for(i in 1:length(beta)){
     alpha		<-	c(cos(beta[i]), sin(beta[i]))
     res			<-	find.pMLE(alpha, y , x, nn, family)
     loglik[i]	<-	res$ll
+    utils::setTxtProgressBar(pb, pbseq[i])
   }
 
   loc			<-	which(loglik==max(loglik))
@@ -159,12 +168,15 @@ find.mle	<-	function(x, y, nn, family='gaussian'){
   ordhat	<-	matrix(0, nrow=length(loc), m)
   llvals  <-  rep(0, length(loc))
 
+  pbseq2 <- round(seq(from = 91, to = 99, by = (99-91)/length(loc)))
+
   for(i in 1:length(loc)){
     alpha		<-	alphahat[i,]
     mle			<-	find.pMLE(alpha, y , x, nn, family)
     phat[i,]	<-	mle$mle
     ordhat[i,]	<-	mle$ord
     llvals[i]   <-  mle$ll
+    utils::setTxtProgressBar(pb, pbseq2[i])
   }
 
   if(length(loc)>1){
@@ -182,6 +194,8 @@ find.mle	<-	function(x, y, nn, family='gaussian'){
   k      <-  length(loc)
   maxll  <-  max(llvals)
 
+  utils::setTxtProgressBar(pb, 100)
+  close(pb)
 
   return(list('alphahat' = alphahat, 'mle' = mle, 'zhat' = zhat,
               'k' = k, 'maxll' = maxll, 'iter' = 1, tol = 0))
