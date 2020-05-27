@@ -30,8 +30,6 @@ find.loglik.gaussian	<-	function(mle, y, nn) {
 #'
 #'
 find.loglik.binomial	<-	function(mle, y, nn, eps) {
-  mle[mle == 0] <- eps
-  mle[mle == 1] <- 1-eps
   ll1			<-	nn*y*log(mle)
   ll1[y==0]	<-	0
   ll2			<-	nn*(1-y)*log(1-mle)
@@ -54,8 +52,10 @@ find.loglik.binomial	<-	function(mle, y, nn, eps) {
 #'
 #'
 find.loglik.poisson   <-  function(mle, y, nn, eps) {
-  mle[mle == 0] <- eps
-  ll <- sum(nn * (y * log(mle) - mle))
+  infnt <- mle == 0
+  ll <- nn * (y * log(mle) - mle)
+  ll[infnt] <- 0
+  ll <- sum(ll)
   return(ll)
 }
 
