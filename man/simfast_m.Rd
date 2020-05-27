@@ -149,7 +149,8 @@ weights <- rep(c(5, 2, 3, 5, 2, 2, 1, 5, 3, 1), 20)
 sfobj <- simfast_m(x = preds, y = y, weights = weights,
                    family = binomial(link = 'logit'))
 
-## predict link values and inspect a subset
+## predict response values and inspect a subset
+## Note that simfast only predicts 'response' values
 predlink <- predict(sfobj)
 predlink[1:20]
 
@@ -166,7 +167,10 @@ curve(fn2, add=TRUE)
 
 ## 3-D Interactive plot of observed predictors vs. yhat
 ## Requires library(plotly)
+if (requireNamespace("plotly", quietly = TRUE)){
 plot(sfobj, predictor = TRUE)
+}
+
 
 
 }

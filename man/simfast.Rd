@@ -162,11 +162,13 @@ glmfit <- glm(ncases ~ offset(log(ntotal)) + tobgp + alcgp + agegp,
               data = esophtrain, family = poisson(link = 'log'))
 
 ## Plot the relationship of estimated responses vs. index values
-plot(sfobj)                 # Not isotonic because of offset
-plot(sfobj, offset = FALSE) # Y-hats adjusted to same scale
+# Not isotonic because of offset
+plot(sfobj)
+# Y-hats adjusted to same scale
+plot(sfobj, offset = FALSE)
 
 ## Predictions from simfast and glm rounded to nearest integer
-sfpred <- round(predict(sfobj, newdata = esophtest, type = 'response'))
+sfpred <- round(predict(sfobj, newdata = esophtest))
 # Note that simfast only predicts 'response' values
 sfpred
 glmpred <- round(predict(glmfit, newdata = esophtest, type = 'response'))
