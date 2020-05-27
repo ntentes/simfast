@@ -10,7 +10,9 @@
 #' @param fn interpolation function passed from \code{predict.simfast}
 #' @param interp extrapolation function passed from \code{predict.simfast}
 #'
-#' @return a numeric vector
+#' @return a numeric 2 by n matrix with the first row as predictions on the
+#'     response scale and the second row a logical that is \code{TRUE} when
+#'     the response is out of the bounds of the original data
 #'
 #' @noRd
 #' @keywords internal
@@ -41,11 +43,11 @@ mat_pred <- function(object, newdata, rule, fn, interp){
     newyhat <- fn(newivs)
     if (rule == 2) {
       names(newyhat) <- rwnms
-      return(newyhat)
+      return(rbind(newyhat, 'oob' = oob))
     } else {
       newyhat[oob] <- interp(newivs)[oob]
       names(newyhat) <- rwnms
-      return(newyhat)
+      return(rbind(newyhat, 'oob' = oob))
     }
   }
 }
@@ -73,9 +75,15 @@ mat_pred <- function(object, newdata, rule, fn, interp){
 #'     is \code{1}, which uses linear extrapolation to estimate outside
 #'     values, but can take value \code{2} which provides the value of
 #'     the closest edge point.
+#' @param oob logical parameter that, if \code{TRUE}, provides a second row
+#'     of logical values that indicates if the data used to predict this
+#'     value was out of the bounds of the original data
 #' @param ... further arguments passed to \code{predict}
 #'
-#' @return a numeric vector of the specified prediction values
+#' @return a numeric vector of the specified prediction values on the response
+#'     scale, unless \code{oob = TRUE}, then returns a matrix with the first row
+#'     of prediction values on the response scale and a second row of logical
+#'     values indicating if data used to predict was out of bounds.
 #' @export
 #'
 #' @author
@@ -87,11 +95,15 @@ mat_pred <- function(object, newdata, rule, fn, interp){
 #'
 #' # See the example provided in the \code{\link{simfast}} documentation.
 #'
-predict.simfast <- function(object, newdata, rule = 1, ...){
+predict.simfast <- function(object, newdata, rule = 1, oob = FALSE, ...){
   family <- object$family
   linkinv <- family$linkinv
   linkfun <- family$linkfun
   if (missing(newdata)){
+    if (oob) {
+      inr <- rep(TRUE, length(object$yhat))
+      return(rbind(object$yhat, 'oob' = inr))
+    }
     return(object$yhat)
   }
   oldy <- object$yhat
@@ -117,7 +129,10 @@ predict.simfast <- function(object, newdata, rule = 1, ...){
     if (is.matrix(newdata)) {
       predvec <- mat_pred(object = object, newdata = newdata, rule = rule,
                           fn = predfun, interp = interp)
-      return(predvec)
+      if (oob) {
+        return(predvec)
+      }
+      return(predvec[1, ])
     } else {
       newdata <- as.matrix(newdata)
       if (!is.numeric(newdata)){
@@ -126,7 +141,10 @@ predict.simfast <- function(object, newdata, rule = 1, ...){
       } else {
         predvec <- mat_pred(object = object, newdata = newdata, rule = rule,
                             fn = predfun, interp = interp)
-        return(predvec)
+        if (oob) {
+          return(predvec)
+        }
+        return(predvec[1, ])
       }
     }
   } else {
@@ -166,13 +184,19 @@ predict.simfast <- function(object, newdata, rule = 1, ...){
       }
       predvec <- mat_pred(object = object, newdata = newmm, rule = rule,
                           fn = pfos, interp = intos)
-      yhatos <- linkfun(predvec) + newoffset
-      predvec <- linkinv(yhatos)
-      return(predvec)
+      yhatos <- linkfun(predvec[1,]) + newoffset
+      predvec[1,] <- linkinv(yhatos)
+      if (oob) {
+        return(predvec)
+      }
+      return(predvec[1, ])
     } else {
       predvec <- mat_pred(object = object, newdata = newmm, rule = rule,
                           fn = predfun, interp = interp)
-      return(predvec)
+      if (oob) {
+        return(predvec)
+      }
+      return(predvec[1, ])
     }
   }
 }

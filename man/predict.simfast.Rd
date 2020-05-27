@@ -4,7 +4,7 @@
 \alias{predict.simfast}
 \title{Predict values of a \code{simfast} object with a data frame or a matrix}
 \usage{
-\method{predict}{simfast}(object, newdata, rule = 1, ...)
+\method{predict}{simfast}(object, newdata, rule = 1, oob = FALSE, ...)
 }
 \arguments{
 \item{object}{an object of class \code{simfast}}
@@ -23,10 +23,17 @@ is \code{1}, which uses linear extrapolation to estimate outside
 values, but can take value \code{2} which provides the value of
 the closest edge point.}
 
+\item{oob}{logical parameter that, if \code{TRUE}, provides a second row
+of logical values that indicates if the data used to predict this
+value was out of the bounds of the original data}
+
 \item{...}{further arguments passed to \code{predict}}
 }
 \value{
-a numeric vector of the specified prediction values
+a numeric vector of the specified prediction values on the response
+    scale, unless \code{oob = TRUE}, then returns a matrix with the first row
+    of prediction values on the response scale and a second row of logical
+    values indicating if data used to predict was out of bounds.
 }
 \description{
 Predict values of a \code{simfast} object with a data frame or a matrix.
