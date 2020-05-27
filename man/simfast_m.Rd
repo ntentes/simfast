@@ -8,6 +8,7 @@ simfast_m(
   x,
   y,
   weights = NULL,
+  offset = NULL,
   family = "gaussian",
   returndata = TRUE,
   method = "stochastic",
@@ -32,6 +33,9 @@ the baseline factor level a 'success' (takes value \code{1}).}
 
 \item{weights}{optional vector of positive integer weights, with length
 \code{n}. Takes default value \code{NULL} which uses equal weights.}
+
+\item{offset}{numeric vector of model offsets , with length
+\code{n}. Takes default value \code{NULL} which uses no offset.}
 
 \item{family}{a choice of the error distribution and link function to
 be used in the model. This can be a character string naming a family

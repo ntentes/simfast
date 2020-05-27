@@ -10,6 +10,7 @@ simfast(
   data,
   intercept = FALSE,
   weights = NULL,
+  offset = NULL,
   family = "gaussian",
   returnmodel = TRUE,
   returndata = TRUE,
@@ -49,6 +50,10 @@ including a 1, for example: \code{z ~ 1 + x + y} will only include columns for
 
 \item{weights}{optional vector of positive integer weights, with length
 \code{n}. Takes default value \code{NULL} which uses equal weights.}
+
+\item{offset}{numeric vector of model offsets , with length
+\code{n}. Takes default value \code{NULL} which uses no offset.
+If an offset is provided here and in the formula, they are combined.}
 
 \item{family}{a choice of the error distribution and link function to
 be used in the model. This can be a character string naming a family
@@ -159,7 +164,7 @@ esophtest  <- esoph[-ind, ]
 sfobj <- simfast(ncases ~ offset(log(ntotal)) + tobgp + alcgp + agegp,
                  data = esophtrain, family = poisson(link = 'log'))
 
-glmfit <- glm(ncases ~ offset(log(ntotal)) + tobgp + alcgp + agegp,
+glmobj <- glm(ncases ~ offset(log(ntotal)) + tobgp + alcgp + agegp,
               data = esophtrain, family = poisson(link = 'log'))
 
 ## Plot the relationship of estimated responses vs. index values
@@ -172,7 +177,7 @@ plot(sfobj, offset = FALSE)
 sfpred <- round(predict(sfobj, newdata = esophtest))
 # Note that simfast only predicts 'response' values
 sfpred
-glmpred <- round(predict(glmfit, newdata = esophtest, type = 'response'))
+glmpred <- round(predict(glmobj, newdata = esophtest, type = 'response'))
 glmpred
 
 ## Compare squared residuals

@@ -16,6 +16,8 @@
 #'     the baseline factor level a 'success' (takes value \code{1}).
 #' @param weights optional vector of positive integer weights, with length
 #'     \code{n}. Takes default value \code{NULL} which uses equal weights.
+#' @param offset numeric vector of model offsets , with length
+#'     \code{n}. Takes default value \code{NULL} which uses no offset.
 #' @param family a choice of the error distribution and link function to
 #'     be used in the model. This can be a character string naming a family
 #'     function, a family function or the result of a call to a family function.
@@ -153,9 +155,9 @@
 #'
 #'
 #'
-simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TRUE,
-                           method = 'stochastic', multiout = FALSE, B = 10000,
-                           k = 100, kappa0 = 100, tol = 1e-10, max.iter = 20) {
+simfast_m <- function(x, y, weights = NULL, offset = NULL, family = 'gaussian',
+                      returndata = TRUE, method = 'stochastic', multiout = FALSE,
+                      B = 10000, k = 100, kappa0 = 100, tol = 1e-10, max.iter = 20) {
   if (NCOL(y) == 1) {
     if (is.character(y)) y <- factor(y)
     if (is.factor(y)) y <- y != levels(y)[1L]
@@ -181,6 +183,25 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
     print(family)
     stop("Specified family cannot be found.")
   }
+  linkfun <- family$linkfun
+  if (!is.function(linkfun))
+    stop("Cannot find specified link function")
+  x <- as.matrix(x)
+  if (!is.numeric(x)){
+    stop('Predictor matrix must be numeric.')
+  }
+  linkinv <- family$linkinv
+  if (!is.null(offset)) {
+    if (all(!is.finite(offset))) {
+      stop("Offset value is not finite. Please check offset vector.")
+    }
+    oldweights <- weights
+    weights <- weights * linkinv(offset)
+    comment(weights) <- 'offset'
+    oldy <- y
+    y <- linkfun(y) - offset
+    y <- linkinv(y)
+  }
   if (famname == 'binomial') {
     newy <- y * weights
     if (is.null(comment(weights))) {
@@ -200,13 +221,6 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
     if (!isTRUE(all.equal(y, abs(y)))) {
       stop("Response values are not all positive, regression cannot continue.")
     }
-  }
-  linkfun <- family$linkfun
-  if (!is.function(linkfun))
-    stop("Cannot find specified link function")
-  x <- as.matrix(x)
-  if (!is.numeric(x)){
-    stop('Predictor matrix must be numeric.')
   }
   if (method == 'exact') {
     if (NCOL(x) == 2) {
@@ -237,6 +251,15 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
               'weights' = weights, 'family' = family, 'loglik' = loglik,
               'offset' = NULL, 'tol' = tol, 'iter' = iter, 'method' = method,
               'model' = NULL, 'intercept' = NULL)
+
+  if (!is.null(offset)) {
+    y <- oldy
+    yhat <- obj[['yhat']]
+    yhat <- linkfun(yhat) + offset
+    obj[['yhat']] <- linkinv(yhat)
+    obj[['offset']] <- offset
+    obj[['weights']] <- oldweights
+  }
 
   if (multiout == TRUE) {
     obj <- append(obj, list("multialphahat" = fit$alphahat, "multiyhat" = fit$mle))
@@ -284,6 +307,9 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'     \code{x} and \code{y}).
 #' @param weights optional vector of positive integer weights, with length
 #'     \code{n}. Takes default value \code{NULL} which uses equal weights.
+#' @param offset numeric vector of model offsets , with length
+#'     \code{n}. Takes default value \code{NULL} which uses no offset.
+#'     If an offset is provided here and in the formula, they are combined.
 #' @param family a choice of the error distribution and link function to
 #'     be used in the model. This can be a character string naming a family
 #'     function, a family function or the result of a call to a family function.
@@ -389,7 +415,7 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #' sfobj <- simfast(ncases ~ offset(log(ntotal)) + tobgp + alcgp + agegp,
 #'                  data = esophtrain, family = poisson(link = 'log'))
 #'
-#' glmfit <- glm(ncases ~ offset(log(ntotal)) + tobgp + alcgp + agegp,
+#' glmobj <- glm(ncases ~ offset(log(ntotal)) + tobgp + alcgp + agegp,
 #'               data = esophtrain, family = poisson(link = 'log'))
 #'
 #' ## Plot the relationship of estimated responses vs. index values
@@ -402,7 +428,7 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #' sfpred <- round(predict(sfobj, newdata = esophtest))
 #' # Note that simfast only predicts 'response' values
 #' sfpred
-#' glmpred <- round(predict(glmfit, newdata = esophtest, type = 'response'))
+#' glmpred <- round(predict(glmobj, newdata = esophtest, type = 'response'))
 #' glmpred
 #'
 #' ## Compare squared residuals
@@ -410,7 +436,7 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #' sum((glmpred - esophtest$ncases)^2)  #glm prediction
 #'
 #'
-simfast <- function(formula, data, intercept = FALSE, weights = NULL,
+simfast <- function(formula, data, intercept = FALSE, weights = NULL, offset = NULL,
                     family = 'gaussian', returnmodel = TRUE, returndata = TRUE,
                     method = 'stochastic', multiout = FALSE, B = 10000, k = 100,
                     kappa0 = 100, tol = 1e-10, max.iter = 20) {
@@ -434,6 +460,16 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL,
   xm <- stats::model.matrix(object = mm, data = mf)
   ym <- stats::model.response(mf)
   os <- stats::model.offset(mf)
+  if (!is.null(offset)) {
+    if (length(offset) != NROW(xm)){
+      stop('Invalid offset vector provided. Must be same length
+           as number of observations')
+    } else if (!is.null(os)) {
+      os <- os + offset
+    } else {
+      os <- offset
+    }
+  }
   if (is.character(family))
     family <- get(family, mode = "function", envir = parent.frame())
   if (is.function(family))
@@ -446,40 +482,13 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL,
     print(family)
     stop("Specified family cannot be found.")
   }
-  linkinv <- family$linkinv
-  linkfun <- family$linkfun
-  if (!is.null(os)){
-    if (all(!is.finite(os))) {
-      stop("Offset value is not finite. Please check offset vector.")
-    }
-    if (is.null(weights)) {
-      oldweights <- rep(1, length(ym))
-      weights <- linkinv(os)
-      comment(weights) <- 'offset'
-    } else {
-      oldweights <- weights
-      weights <- weights * linkinv(os)
-      comment(weights) <- 'offset'
-    }
-    oldy <- ym
-    ym <- linkfun(ym) - os
-    ym <- linkinv(ym)
-  }
-  simfit <- simfast_m(x = xm, y = ym, weights = weights, family = family,
+  simfit <- simfast_m(x = xm, y = ym, weights = weights, family = family, offset = os,
                       returndata = returndata, method = method, multiout = multiout,
                       B = B, k = k, kappa0 = kappa0, tol = tol, max.iter = max.iter)
   if (returnmodel == TRUE){
     simfit[['model']] <- mm
   }
   simfit[['intercept']] <- intercept
-  if (!is.null(os)) {
-    simfit[['y']] <- oldy
-    yhat <- simfit[['yhat']]
-    yhat <- linkfun(yhat) + os
-    simfit[['yhat']] <- linkinv(yhat)
-    simfit[['offset']] <- os
-    simfit[['weights']] <- oldweights
-  }
   return(simfit)
 }
 
