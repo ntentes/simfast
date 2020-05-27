@@ -144,6 +144,7 @@ single index models, we refer to REFs.
 ## Load esophageal cancer dataset
 esoph <- datasets::esoph
 str(esoph) # note that three variables are ordered factors
+esoph$ntotal <- esoph$ncases + esoph$ncontrols #use as offset
 
 ## subset the data frame for training
 set.seed(1) # keep from getting data OOB warning in predict()
@@ -154,10 +155,10 @@ esophtest  <- esoph[-ind, ]
 
 ## fit a model with formulas, including ordered/regular factors
 ## and support for offsets. similar syntax to glm()
-sfobj <- simfast(ncases ~ offset(log(ncontrols)) + tobgp + alcgp + agegp,
+sfobj <- simfast(ncases ~ offset(log(ntotal)) + tobgp + alcgp + agegp,
                  data = esophtrain, family = poisson(link = 'log'))
 
-glmfit <- glm(ncases ~ offset(log(ncontrols)) + tobgp + alcgp + agegp,
+glmfit <- glm(ncases ~ offset(log(ntotal)) + tobgp + alcgp + agegp,
               data = esophtrain, family = poisson(link = 'log'))
 
 ## Plot the relationship of estimated responses vs. index values
@@ -166,11 +167,12 @@ plot(sfobj, offset = FALSE) # Y-hats adjusted to same scale
 
 ## Predictions from simfast and glm rounded to nearest integer
 sfpred <- round(predict(sfobj, newdata = esophtest, type = 'response'))
+# Note that simfast only predicts 'response' values
 sfpred
 glmpred <- round(predict(glmfit, newdata = esophtest, type = 'response'))
 glmpred
 
-## Compare square residuals (lower is better)
+## Compare squared residuals
 sum((sfpred - esophtest$ncases)^2)   #simfast prediction
 sum((glmpred - esophtest$ncases)^2)  #glm prediction
 

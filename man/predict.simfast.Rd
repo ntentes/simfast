@@ -4,7 +4,7 @@
 \alias{predict.simfast}
 \title{Predict values of a \code{simfast} object with a data frame or a matrix}
 \usage{
-\method{predict}{simfast}(object, newdata, type = "link", rule = 1, ...)
+\method{predict}{simfast}(object, newdata, rule = 1, ...)
 }
 \arguments{
 \item{object}{an object of class \code{simfast}}
@@ -16,11 +16,6 @@ was selected when fitting your \code{simfast} object (this is the default
 value). New numeric matrix or data frame must match the structure of the
 original data (unused columns in data frames need not be included). Note
 that rows with \code{NA} values will be removed.}
-
-\item{type}{character string specifying type of prediction, takes
-value \code{'link'} by default for predictions on the scale of
-the linear predictors, and takes \code{'response'} for predicted
-response values.}
 
 \item{rule}{integer that describes how to handle predictor values
 outside the range of the original data. By default, the value
@@ -36,6 +31,8 @@ a numeric vector of the specified prediction values
 \description{
 Predict values of a \code{simfast} object with a data frame or a matrix.
 Can also be called by running \code{\link{predict}} on \code{simfast} object.
+Note that \code{simfast} fits models on the response level, so only
+'response' values are predicted.
 }
 \examples{
 
