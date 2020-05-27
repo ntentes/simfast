@@ -15,5 +15,5 @@
 #' # See the example provided in the \code{\link{simfast}} documentation.
 #'
 fitted.simfast <- function (object, ...){
-  predict.simfast(object, type = 'response', ...)
+  predict.simfast(object, ...)
 }

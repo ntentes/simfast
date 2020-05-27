@@ -42,7 +42,7 @@ offsets are only counted once.}
 \code{\link{as.data.frame}}) containing the variables in the model. Variables
 are taken from \code{environment(formula)} if not found in \code{data}.}
 
-\item{intercept}{optional boolean, if \code{FALSE} (the default value), then the
+\item{intercept}{logical value, if \code{FALSE} (the default value), then the
 model given by the formula does not include an intercept value (even when
 including a 1, for example: \code{z ~ 1 + x + y} will only include columns for
 \code{x} and \code{y}).}
@@ -57,21 +57,21 @@ Currently supporting any of \code{\link{gaussian}, \link{binomial},
     \link{poisson},} and \code{\link{Gamma}}. The canonical link function is used
 by default, but all link functions available for these families are supported.}
 
-\item{returnmodel}{optional boolean that when \code{TRUE} (the default value)
+\item{returnmodel}{logical value that when \code{TRUE} (the default value)
 attaches the \code{\link{model.frame}} object to the simfast object. Leave
 as \code{TRUE} to properly use the \code{\link{predict}} function.}
 
-\item{returndata}{optional boolean that when \code{TRUE} (the default value)
+\item{returndata}{logical value that when \code{TRUE} (the default value)
 returns the predictor matrix and response vector in the simfast object.}
 
 \item{method}{when \code{x} has \code{d=2} columns, method can take \code{'exact'}
-argument, which uses an exact omptimization method instead of a stochastic
+argument, which uses an exact optimization method instead of a stochastic
 search. If \code{d} does not equal \code{2}, \code{simfast} will give a
 warning and automatically continue with a stochastic search (the default
 method, \code{method = 'stochastic'}).}
 
-\item{multiout}{optional boolean, if \code{TRUE}, will return more than one
-\code{alpha} vector and \code{yhat} vector if available, seperately from the main
+\item{multiout}{logical value, if \code{TRUE}, will return more than one
+\code{alpha} vector and \code{yhat} vector if available, separately from the main
 estimate (see Value section and Details).}
 
 \item{B}{positive integer, sets number of index vectors to try when maximizing

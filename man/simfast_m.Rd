@@ -40,17 +40,17 @@ Currently supporting any of \code{\link{gaussian}, \link{binomial},
     \link{poisson},} and \code{\link{Gamma}}. The canonical link function is used
 by default, but all link functions available for these families are supported.}
 
-\item{returndata}{optional boolean that when \code{TRUE} (the default value)
+\item{returndata}{logical value that when \code{TRUE} (the default value)
 returns the predictor matrix and response vector in the simfast object.}
 
 \item{method}{when \code{x} has \code{d=2} columns, method can take \code{'exact'}
-argument, which uses an exact omptimization method instead of a stochastic
+argument, which uses an exact optimization method instead of a stochastic
 search. If \code{d} does not equal \code{2}, \code{simfast_m} will give a
 warning and automatically continue with a stochastic search (the default
 method, \code{method = 'stochastic'}).}
 
-\item{multiout}{optional boolean, if \code{TRUE}, will return more than one
-\code{alpha} vector and \code{yhat} vector if available, seperately from the main
+\item{multiout}{logical value, if \code{TRUE}, will return more than one
+\code{alpha} vector and \code{yhat} vector if available, separately from the main
 estimate (see Value section and Details).}
 
 \item{B}{positive integer, sets number of index vectors to try when maximizing

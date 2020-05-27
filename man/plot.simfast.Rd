@@ -9,21 +9,21 @@
 \arguments{
 \item{x}{an object of class \code{\link{simfast}}.}
 
-\item{points}{boolean, if \code{TRUE}, plots points on the estimated ridge function.
+\item{points}{logical, if \code{TRUE}, plots points on the estimated ridge function.
 Plot will only contain a line representing the estimated ridge function if this
 option is changed to \code{FALSE}.}
 
-\item{weights}{boolean, if \code{TRUE}, sizes the points according to their scaled weights.
+\item{weights}{logical, if \code{TRUE}, sizes the points according to their scaled weights.
 This only occurs if \code{pts = TRUE}, nothing happens otherwise.}
 
-\item{predictor}{boolean, if \code{TRUE}, produces a \code{plotly} scatterplot
+\item{predictor}{logical, if \code{TRUE}, produces a \code{plotly} scatterplot
 of the estimated responses (\code{yhat}) and the observed predictors \code{x}
 (instead of \code{indexvals} on the predictor axes). This is an interactive 3-D
 scatterplot when \code{x} is 2 dimensional and a regular scatterplot if \code{x}
 is one dimensional. \code{plot.simfast} will throw an error with this option
 selected if \code{plotly} is not installed or \code{x} is larger than 2-dimensional.}
 
-\item{offset}{boolean, if \code{FALSE}, adjusts \code{yhat} values by the offset so
+\item{offset}{logical, if \code{FALSE}, adjusts \code{yhat} values by the offset so
 that the isotonic relationship is visible. When \code{TRUE}, \code{yhat} values are
 left unscaled.}
 
