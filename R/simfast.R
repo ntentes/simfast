@@ -128,7 +128,8 @@
 #' sfobj <- simfast_m(x = preds, y = y, weights = weights,
 #'                    family = binomial(link = 'logit'))
 #'
-#' ## predict link values and inspect a subset
+#' ## predict response values and inspect a subset
+#' ## Note that simfast only predicts 'response' values
 #' predlink <- predict(sfobj)
 #' predlink[1:20]
 #'
@@ -145,7 +146,10 @@
 #'
 #' ## 3-D Interactive plot of observed predictors vs. yhat
 #' ## Requires library(plotly)
+#' if (requireNamespace("plotly", quietly = TRUE)){
 #' plot(sfobj, predictor = TRUE)
+#' }
+#'
 #'
 #'
 simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TRUE,
@@ -385,11 +389,13 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'               data = esophtrain, family = poisson(link = 'log'))
 #'
 #' ## Plot the relationship of estimated responses vs. index values
-#' plot(sfobj)                 # Not isotonic because of offset
-#' plot(sfobj, offset = FALSE) # Y-hats adjusted to same scale
+#' # Not isotonic because of offset
+#' plot(sfobj)
+#' # Y-hats adjusted to same scale
+#' plot(sfobj, offset = FALSE)
 #'
 #' ## Predictions from simfast and glm rounded to nearest integer
-#' sfpred <- round(predict(sfobj, newdata = esophtest, type = 'response'))
+#' sfpred <- round(predict(sfobj, newdata = esophtest))
 #' # Note that simfast only predicts 'response' values
 #' sfpred
 #' glmpred <- round(predict(glmfit, newdata = esophtest, type = 'response'))
