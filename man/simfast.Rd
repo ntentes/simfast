@@ -101,6 +101,7 @@ fit the model, otherwise it is \code{NULL}.}
 of \code{x} and \code{alphahat}}
 \item{\code{weights}}{vector of the integer weights used in the model fit}
 \item{\code{family}}{the \code{\link{family}} function provided to \code{simfast_m}}
+\item{\code{loglik}}{a numeric value of the log-likelihood at the estimate.}
 \item{\code{offset}}{a numeric vector specifying the offset provided in the
 model formula.}
 \item{\code{tol}}{numeric convergence tolerance acheived during fitting with
