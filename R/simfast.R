@@ -68,6 +68,7 @@
 #'      of \code{x} and \code{alphahat}}
 #'  \item{\code{weights}}{vector of the integer weights used in the model fit}
 #'  \item{\code{family}}{the \code{\link{family}} function provided to \code{simfast_m}}
+#'  \item{\code{loglik}}{a numeric value of the log-likelihood at the estimate.}
 #'  \item{\code{offset}}{returns \code{NULL} when calling \code{simfast_m}}
 #'  \item{\code{tol}}{numeric convergence tolerance acheived during fitting with
 #'      \code{method = 'stochastic'}. For \code{method = 'exact'}, this is \code{0}.}
@@ -230,10 +231,12 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
   indexvals <- firstrow(fit$zhat)
   pdim <- NCOL(x)
   alphahat <- firstrow(fit$alphahat)
+  loglik <- fit$maxll
 
   obj <- list('alphahat' = alphahat, 'yhat' = yhat, 'indexvals' = indexvals,
-              'weights' = weights, 'family' = family, 'offset' = NULL, 'tol' = tol,
-              'iter' = iter, 'method' = method, 'model' = NULL, 'intercept' = NULL)
+              'weights' = weights, 'family' = family, 'loglik' = loglik,
+              'offset' = NULL, 'tol' = tol, 'iter' = iter, 'method' = method,
+              'model' = NULL, 'intercept' = NULL)
 
   if (multiout == TRUE) {
     obj <- append(obj, list("multialphahat" = fit$alphahat, "multiyhat" = fit$mle))
@@ -336,6 +339,7 @@ simfast_m <- function(x, y, weights = NULL, family = 'gaussian', returndata = TR
 #'      of \code{x} and \code{alphahat}}
 #'  \item{\code{weights}}{vector of the integer weights used in the model fit}
 #'  \item{\code{family}}{the \code{\link{family}} function provided to \code{simfast_m}}
+#'  \item{\code{loglik}}{a numeric value of the log-likelihood at the estimate.}
 #'  \item{\code{offset}}{a numeric vector specifying the offset provided in the
 #'      model formula.}
 #'  \item{\code{tol}}{numeric convergence tolerance acheived during fitting with
