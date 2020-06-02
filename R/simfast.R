@@ -99,58 +99,65 @@
 #'
 #' @examples
 #'
-#' ## Generate predictor data uniformly on [-4, 4]^2
-#' set.seed(1)
-#' d <- 2
-#' preds <- matrix(stats::runif(d*200, min = -4, max = 4), 200, d)
+#' # Generate predictor data uniformly on [-4, 4]^2
 #'
-#' ## Choose true alpha in R^2 with magnitude 1
+#' \dontshow{set.seed(100)}
+#' d <- 2
+#' preds <- matrix(stats::runif(d*500, min = -4, max = 4), 500, d)
+#'
+#' # Choose true alpha in R^2 with magnitude 1
+#'
 #' alpha <- c(-2, 0.5)/sqrt(4.25)
 #'
-#' ## Set true ridge function (piecewise)
+#' # Set true ridge function (piecewise)
+#'
 #' fn <- function(x){
-#'   ## RANGE              ## VALUES
-#'   (x< -3)             * (x+5)               +
-#'   (x< -1)*(x>= -3)    * 2                   +
-#'   (x< 1.525)*(x>= -1) * (0.1*(x + 1)^3 + 2) +
-#'   (x>=1.525)          * (0.4*x + 3)
+#'   #  RANGE              #  VALUES
+#'    (x< -3)             * (x+5)               +
+#'    (x< -1)*(x>= -3)    * 2                   +
+#'    (x< 1.525)*(x>= -1) * (0.1*(x + 1)^3 + 2) +
+#'    (x>=1.525)          * (0.4*x + 3)
 #' }
 #'
-#' fn2 <- function(x) fn(x)/5          # scale to range of [0,1]
-#' graphics::plot(fn2, xlim = c(-5,5)) # inspect plot of ridge
+#' # Generate Gaussian response values with the same number of rows
 #'
-#' ## Generate binomial response values with the same number of rows
 #' indexvals <- preds %*% alpha
-#' probs  <- fn2(indexvals)
-#' y <- stats::rbinom(200, size = 1, prob = probs)
+#' mu  <- fn(indexvals)
+#' y <- stats::rnorm(500, mean = mu)
 #'
-#' ## Set weights
-#' weights <- rep(c(5, 2, 3, 5, 2, 2, 1, 5, 3, 1), 20)
+#' # Set weights
 #'
-#' ## Fit simfast object
-#' sfobj <- simfast_m(x = preds, y = y, weights = weights,
-#'                    family = binomial(link = 'logit'))
+#' weights <- rep(c(5, 2, 3, 5, 2, 2, 1, 5, 3, 1), 50)
 #'
-#' ## predict response values and inspect a subset
-#' ## Note that simfast only predicts 'response' values
+#' # Fit simfast object
+#'
+#' sfobj <- simfast_m(x = preds, y = y, weights = weights)
+#'
+#' # Predict response values and inspect a subset
+#' # Note: simfast only predicts 'response' values
+#'
 #' predlink <- predict(sfobj)
 #' predlink[1:20]
 #'
-#' ## predict response values with new data and inspect
+#' # predict response values with new data and inspect
+#'
 #' newpreds <- matrix(stats::runif(d*200, min = -3, max = 3), 200, d)
 #' predresp <- predict(sfobj, newdata = newpreds,
 #'                     type = 'response', rule = 1)
 #' predresp[1:20]
 #'
-#' ## Plot simfast object yhat vs. indexvals showcasing weights
-#' ## and compare to the true ridge function fn2
+#' # Plot simfast object Y-Hat vs. indexvals showcasing weights
+#' # and compare to the true ridge function fn()
+#' \dontshow{devAskNewPage(ask = FALSE)}
 #' plot(sfobj, xlim = c(-5, 5))
-#' curve(fn2, add=TRUE)
+#' \dontshow{invisible(readline(prompt="Press <Return> to plot the truth."))}
+#' curve(fn, lwd = 4, lty = 2, col = rgb(1, 0, 0, 0.6), add=TRUE)
 #'
-#' ## 3-D Interactive plot of observed predictors vs. yhat
-#' ## Requires library(plotly)
+#' # 3-D Interactive plot of observed predictors vs. Y-Hat
+#' # Requires library(plotly)
+#' \dontshow{invisible(readline(prompt="Press <Return> to see 3-D Plot if library(plotly) is installed."))}
 #' if (requireNamespace("plotly", quietly = TRUE)){
-#' plot(sfobj, predictor = TRUE)
+#'   plot(sfobj, predictor = TRUE)
 #' }
 #'
 #'
@@ -420,8 +427,11 @@ simfast_m <- function(x, y, weights = NULL, offset = NULL, family = 'gaussian',
 #'
 #' ## Plot the relationship of estimated responses vs. index values
 #' # Not isotonic because of offset
+#' \dontshow{devAskNewPage(ask = FALSE)}
+#' \dontshow{invisible(readline(prompt="Press <Return> to plot the model with integer response values."))}
 #' plot(sfobj)
 #' # Y-hats adjusted to same scale
+#' \dontshow{invisible(readline(prompt="Press <Return> to plot the model with rate response values."))}
 #' plot(sfobj, offset = FALSE)
 #'
 #' ## Predictions from simfast and glm rounded to nearest integer
