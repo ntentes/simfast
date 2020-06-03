@@ -170,7 +170,6 @@ glmobj <- glm(ncases ~ offset(log(ntotal)) + tobgp + alcgp + agegp,
 ## Plot the relationship of estimated responses vs. index values
 # Not isotonic because of offset
 \dontshow{devAskNewPage(ask = FALSE)}
-\dontshow{invisible(readline(prompt="Press <Return> to plot the model with integer response values."))}
 plot(sfobj)
 # Y-hats adjusted to same scale
 \dontshow{invisible(readline(prompt="Press <Return> to plot the model with rate response values."))}
