@@ -427,9 +427,9 @@ simfast_m <- function(x, y, weights = NULL, offset = NULL, family = 'gaussian',
 #'
 #' ## Plot the relationship of estimated responses vs. index values
 #' # Not isotonic because of offset
-#' \dontshow{devAskNewPage(ask = FALSE)}
 #' plot(sfobj)
 #' # Y-hats adjusted to same scale
+#' \dontshow{devAskNewPage(ask = FALSE)}
 #' \dontshow{invisible(readline(prompt="Press <Return> to plot the model with rate response values."))}
 #' plot(sfobj, offset = FALSE)
 #'
