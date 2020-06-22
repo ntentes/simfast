@@ -53,19 +53,32 @@ plot.simfast <- function(x, points = TRUE, weights = TRUE, predictor = FALSE, of
            Please install and re-run.")
     } else if (NCOL(x$x) == 1) {
       fig <- plotly::plot_ly(x = x$x, y= yhat, type = 'scatter', mode = 'markers',
-                     color = I('black'), ...)
-      fig <- plotly::layout(fig, title = 'Y-Hat vs. Observed Predictors',
-                    xaxis = list(title = 'Observed X', zeroline = FALSE),
-                    yaxis = list(title = 'Y-Hat', zeroline = FALSE))
+                             color = I('black'), ...)
+      if (is.null(dimnames(x$x)[[2]]) | length(dimnames(x$x)[[2]]) != 1){
+        fig <- plotly::layout(fig, title = 'Y-Hat vs. Observed Predictors',
+                              xaxis = list(title = 'Observed X', zeroline = FALSE),
+                              yaxis = list(title = 'Y-Hat', zeroline = FALSE))
+      } else {
+        fig <- plotly::layout(fig, title = 'Y-Hat vs. Observed Predictors',
+                              xaxis = list(title = dimnames(x$x)[[2]], zeroline = FALSE),
+                              yaxis = list(title = 'Y-Hat', zeroline = FALSE))
+      }
       return(fig)
     } else {
       fig <- plotly::plot_ly(x = x$x[,1], y = x$x[,2], z = yhat,
                              type = 'scatter3d', mode = 'markers',
                              color = I('black'), ...)
-      fig <- plotly::layout(fig, title = 'Y-Hat vs. Observed Predictors',
-                            scene = list(xaxis = list(title = 'Observed X_1'),
-                                    yaxis = list(title = 'Observed X_2'),
-                                    zaxis = list(title = 'Y-Hat')))
+      if (is.null(dimnames(x$x)[[2]]) | length(dimnames(x$x)[[2]]) != 2){
+        fig <- plotly::layout(fig, title = 'Y-Hat vs. Observed Predictors',
+                              scene = list(xaxis = list(title = 'Observed X_1'),
+                                           yaxis = list(title = 'Observed X_2'),
+                                           zaxis = list(title = 'Y-Hat')))
+      } else {
+        fig <- plotly::layout(fig, title = 'Y-Hat vs. Observed Predictors',
+                              scene = list(xaxis = list(title = dimnames(x$x)[[2]][1]),
+                                           yaxis = list(title = dimnames(x$x)[[2]][2]),
+                                           zaxis = list(title = 'Y-Hat')))
+      }
       return(fig)
     }
   } else if (points) {
@@ -77,8 +90,8 @@ plot.simfast <- function(x, points = TRUE, weights = TRUE, predictor = FALSE, of
       wtsize <- rep(1, length(yhat))
     }
     graphics::plot(x = indvals[xord], y = yhat[xord], col = 'darkgrey', lwd = 2,
-                   type = 'l', main = "Estimated Response Values vs. Single Index Values",
-                   xlab = expression(paste("Single Index Values: ", x^T, hat(alpha))),
+                   type = 'l', main = "Estimated response values against single index values",
+                   xlab = expression(paste("Single Index Values: ", hat(alpha)^T, x)),
                    ylab = '', cex.main = 1, cex.lab = 0.9, ...)
     graphics::title(ylab=expression(paste("Response Estimates: ", hat(Y))),
                     mgp=c(2.3,1,0), cex.lab=0.9)
@@ -87,8 +100,8 @@ plot.simfast <- function(x, points = TRUE, weights = TRUE, predictor = FALSE, of
                      col = grDevices::rgb(0,0,0, alpha = 0.3), cex = wtsize)
   } else {
     graphics::plot(x = indvals[xord], y = yhat[xord], col = 'darkgrey', lwd = 2,
-                   type = 'l', main = "Estimated Response Values vs. Single Index Values",
-                   xlab = expression(paste("Single Index Values: ", x^T, hat(alpha))),
+                   type = 'l', main = "Estimated response values against single index values",
+                   xlab = expression(paste("Single Index Values: ", hat(alpha)^T, x)),
                    ylab = '', cex.main = 1, cex.lab = 0.9, ...)
     graphics::title(ylab=expression(paste("Response Estimates: ", hat(Y))),
                     mgp=c(2.3,1,0), cex.lab=0.9)

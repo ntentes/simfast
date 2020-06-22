@@ -169,10 +169,10 @@ glmobj <- glm(ncases ~ offset(log(ntotal)) + tobgp + alcgp + agegp,
 
 ## Plot the relationship of estimated responses vs. index values
 # Not isotonic because of offset
-\dontshow{devAskNewPage(ask = FALSE)}
 plot(sfobj)
 # Y-hats adjusted to same scale
 \dontshow{invisible(readline(prompt="Press <Return> to plot the model with rate response values."))}
+\dontshow{devAskNewPage(ask = FALSE)}
 plot(sfobj, offset = FALSE)
 
 ## Predictions from simfast and glm rounded to nearest integer
