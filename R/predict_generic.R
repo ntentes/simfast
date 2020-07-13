@@ -156,6 +156,7 @@ predict.simfast <- function(object, newdata, rule = 1, oob = FALSE, ...){
     if (object$intercept == FALSE) {
       attr(mm, "intercept") <- 0
     }
+    mm <- delete.response(mm)
     newmf <- stats::model.frame(formula = mm, data = newdata)
     newmm <- stats::model.matrix(object = mm, data = newmf)
     if (!is.null(object$offset)) {
