@@ -9,7 +9,9 @@ dsq.test <- function(simfastobj, N = 10000, B = 10000) {
   ## extract response and weights
   x <- simfastobj$x
   y <- simfastobj$y
+  yhat <- simfastobj$yhat
   weights <- simfastobj$weights
+  ylength <- length(weights)
 
   ## Remove offset if included
   if (!is.null(simfastobj$offset)) {
@@ -17,23 +19,23 @@ dsq.test <- function(simfastobj, N = 10000, B = 10000) {
     weights <- oldweights * linkinv(offset)
     comment(weights) <- 'offset'
     oldy <- y
+    oldyhat <- yhat
     fam  <- simfastobj$family
     y    <- fam$linkfun(y) - offset
     y    <- fam$linkinv(y)
+    yhat <- fam$linkfun(yhat) - offset
+    yhat <- fam$linkinv(yhat)
   }
 
   ## Extract alpha-hat
   alphahat <- simfastobj$alphahat
 
   ## Test statistic
-
+  Dsq_n <- sum(weights * (y - yhat) ^ 2)
 
   ## Simulate S_d-1
   alphas		<-	matrix(stats::rnorm(d*N), N, d)
   alphas		<-	alphas/apply(alphas, 1, function(x) sqrt(sum(x^2)))
-
-  ## Compute upper quantile of theoretical stat
-  Dsq <- NULL
 
   ## Helper function to calculate D^2 stat
   dsq <- function(a, newresp, wts, preds) {
@@ -41,7 +43,6 @@ dsq.test <- function(simfastobj, N = 10000, B = 10000) {
     ord    <- as.vector(order(preds%*%a))
     isor   <- Iso::pava(newresp[ord], wts[ord])
     lambda <- wts/sum(wts)
-
     return(sum(lambda[ord] * (isor[ord] - newresp[ord])^2))
   }
 
@@ -49,16 +50,26 @@ dsq.test <- function(simfastobj, N = 10000, B = 10000) {
   d         <-  length(simfastobj$alphahat)
   lambdan   <-  weights/sum(weights)
 
+  ## calculate dispersion parameter
+  famname <- simfastobj$family()$family
+  if (famename %in% c("poisson",
+                      "binomial")) {
+    disp <- 1
+  } else {
+    disp <- ((y - yhat) ^ 2) / ylength
+  }
+
+  ## Compute upper quantile of theoretical stat
   dsq.stat		<-	rep(0, B)
 
   for (i in 1:B) {
-    Ti          <-  rnorm(n = length(lambdan), mean = 0, sd = sqrt(1/lambdan))
+    Ti          <-  rnorm(n = ylength, mean = 0, sd = sqrt(1/lambdan))
     res				  <-	apply(X = alphas, FUN = dsq, MARGIN = 1, newresp = Ti, wts = weights, preds = x)
     indmin      <-  which.min(res)
     dsq.stat[i] <-  res[indmin]
   }
 
-  empcdf   <- ecdf(dsq.stat)
+  empcdf   <- ecdf(disp * dsq.stat)
 
   pval  <-  1 - empcdf(ll)
 
