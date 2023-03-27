@@ -94,8 +94,8 @@
 #' @md
 #'
 #' @author
-#'     Hanna Jankowski: hkj@@yorku.ca>
-#'     Konstantinos Ntentes: kntentes@@yorku.ca (maintainer)
+#'     Hanna Jankowski: hkj@@yorku.ca
+#'     Konstantinos Ntentes: tino.ntentes@@gmail.com (maintainer)
 #'
 #' @examples
 #'
@@ -407,7 +407,7 @@ simfast_m <- function(x, y, weights = NULL, offset = NULL, family = 'gaussian',
 #'
 #' @author
 #'     Hanna Jankowski: hkj@@yorku.ca
-#'     Konstantinos Ntentes: kntentes@@yorku.ca (maintainer)
+#'     Konstantinos Ntentes: tino.ntentes@@gmail.com (maintainer)
 #'
 #' @examples
 #'
