@@ -171,12 +171,18 @@ simfast_m <- function(x, y, weights = NULL, offset = NULL, family = 'gaussian',
   } else {
     stop("Response 'y' must be a single column.")
   }
+  if ((!is.null(weights)) && (length(weights[!is.na(weights)]) != NROW(x))){
+    stop('Weights vector missing values. Corresponding rows will be removed from model fit')
+  }
   if (!is.null(weights) && !is.numeric(weights))
     stop("'weights' must be a numeric vector")
   if (!is.null(weights) && any(weights < 0))
     stop("negative weights not allowed")
   if (is.null(weights)) {
     weights <- rep(1, length(y))
+  }
+  if ((!is.null(offset)) && (length(offset[!is.na(offset)]) != NROW(x))){
+    stop('Offset vector missing values. Corresponding rows will be removed from model fit')
   }
   if (is.character(family))
     family <- get(family, mode = "function", envir = parent.frame())
@@ -455,7 +461,7 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL, offset = N
     data <- as.data.frame(data)
   }
   mf <- match.call()
-  m <- match(x = c("formula", "data"),
+  m <- match(x = c("formula", "data", "weights", "offset"),
              table = names(mf), nomatch = 0L)
   mf <- mf[c(1L, m)]
   mf$drop.unused.levels <- TRUE
@@ -469,15 +475,12 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL, offset = N
   xm <- stats::model.matrix(object = mm, data = mf)
   ym <- stats::model.response(mf)
   os <- stats::model.offset(mf)
-  if (!is.null(offset)) {
-    if (length(offset) != NROW(xm)){
-      stop('Invalid offset vector provided. Must be same length
-           as number of observations')
-    } else if (!is.null(os)) {
-      os <- os + offset
-    } else {
-      os <- offset
-    }
+  if (!is.null(os) && (length(os) != NROW(xm))){
+    stop('Invalid offset vector provided. Must be same length as number of observations')
+  }
+  mw <- stats::model.weights(mf)
+  if (!is.null(mw) && (length(mw) != NROW(xm))){
+    stop('Invalid weights vector provided. Must be same length as number of observations')
   }
   if (is.character(family))
     family <- get(family, mode = "function", envir = parent.frame())
@@ -491,7 +494,11 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL, offset = N
     print(family)
     stop("Specified family cannot be found.")
   }
-  simfit <- simfast_m(x = xm, y = ym, weights = weights, family = family, offset = os,
+  if (!is.null(data) && (NROW(data) != NROW(xm))) {
+    rows_dropped <- NROW(data) - NROW(xm)
+    warning(paste0(rows_dropped, " rows dropped before fitting -- check for missing data in included columns"))
+  }
+  simfit <- simfast_m(x = xm, y = ym, weights = mw, family = family, offset = os,
                       returndata = returndata, method = method, multiout = multiout,
                       B = B, k = k, kappa0 = kappa0, tol = tol, max.iter = max.iter)
   if (returnmodel == TRUE){
