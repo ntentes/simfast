@@ -171,19 +171,72 @@ simfast_m <- function(x, y, weights = NULL, offset = NULL, family = 'gaussian',
   } else {
     stop("Response 'y' must be a single column.")
   }
-  if ((!is.null(weights)) && (length(weights[!is.na(weights)]) != NROW(x))){
-    stop('Weights vector missing values. Corresponding rows will be removed from model fit')
+  if (NROW(x) != NROW(y)) {
+    stop("predictor matrix 'x' and response 'y' do not have the same number of rows -- fitting cannot continue.")
   }
-  if (!is.null(weights) && !is.numeric(weights))
+  if ((!is.null(weights)) & (length(weights) != NROW(x))){
+    stop('Weights vector is the wrong length -- fitting cannot continue.')
+  }
+  if (!is.null(weights) & !is.numeric(weights))
     stop("'weights' must be a numeric vector")
-  if (!is.null(weights) && any(weights < 0))
-    stop("negative weights not allowed")
   if (is.null(weights)) {
     weights <- rep(1, length(y))
   }
-  if ((!is.null(offset)) && (length(offset[!is.na(offset)]) != NROW(x))){
-    stop('Offset vector missing values. Corresponding rows will be removed from model fit')
+  if ((!is.null(offset)) && (length(offset) != NROW(x))){
+    stop('Offset vector is the wrong length -- fitting cannot continue')
   }
+  if (sum(!complete.cases(x)) > 0) {
+    warning("Missing values in predictor matrix 'x' -- rows with missing data will be removed")
+    cc <- complete.cases(x)
+    x <- x[cc, ]
+    y <- y[cc]
+    if (!is.null(weights)) {
+      weights <- weights[cc]
+    }
+    if (!is.null(offset)) {
+      offset <- offset[cc]
+    }
+  }
+  if (sum(!complete.cases(y)) > 0) {
+    warning("Missing values in response vector 'y' -- rows with missing data will be removed")
+    cc <- complete.cases(y)
+    x <- x[cc, ]
+    y <- y[cc]
+    if (!is.null(weights)) {
+      weights <- weights[cc]
+    }
+    if (!is.null(offset)) {
+      offset <- offset[cc]
+    }
+  }
+  if (!is.null(weights) & (sum(!complete.cases(weights)) > 0)) {
+    warning("Missing values in weights vector -- rows with missing weights will be removed")
+    cc <- complete.cases(weights)
+    x <- x[cc, ]
+    y <- y[cc]
+    if (!is.null(weights)) {
+      weights <- weights[cc]
+    }
+    if (!is.null(offset)) {
+      offset <- offset[cc]
+    }
+  }
+  if (!is.null(offset)) {
+    if (sum(!complete.cases(offset)) > 0) {
+      warning("Missing values in offset vector -- rows with missing offset values will be removed")
+      cc <- complete.cases(offset)
+      x <- x[cc, ]
+      y <- y[cc]
+      if (!is.null(weights)) {
+        weights <- weights[cc]
+      }
+      if (!is.null(offset)) {
+        offset <- offset[cc]
+      }
+    }
+  }
+  if (!is.null(weights) & any(weights < 0, na.rm = T))
+    stop("negative weights not allowed")
   if (is.character(family))
     family <- get(family, mode = "function", envir = parent.frame())
   if (is.function(family))
@@ -496,7 +549,7 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL, offset = N
   }
   if (!is.null(data) && (NROW(data) != NROW(xm))) {
     rows_dropped <- NROW(data) - NROW(xm)
-    warning(paste0(rows_dropped, " rows dropped before fitting -- check for missing data in included columns"))
+    warning(paste0(rows_dropped, " rows dropped before fitting -- check for NAs/missing values in data or weights/offset arguments"))
   }
   simfit <- simfast_m(x = xm, y = ym, weights = mw, family = family, offset = os,
                       returndata = returndata, method = method, multiout = multiout,

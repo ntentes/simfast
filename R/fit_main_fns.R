@@ -43,6 +43,11 @@ search.mle		<-	function(x, y, nn, family='gaussian', B=10000, k=100, kappa0=100,
   for(j in 1:max.iter){
 
     if(print==TRUE) print(check)
+
+    if(is.nan(check)) {
+      stop(paste0("check [fitting tolerance (llhat2-llhat)/abs(llhat)] value is ", check, " -- llhat=", llhat, " llhat2=", llhat2))
+    }
+
     if(check < tol) break
 
     if(print==TRUE) print(j)
