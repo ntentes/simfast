@@ -94,8 +94,8 @@
 #' @md
 #'
 #' @author
-#'     Hanna Jankowski: hkj@@yorku.ca>
-#'     Konstantinos Ntentes: kntentes@@yorku.ca (maintainer)
+#'     Hanna Jankowski: hkj@@yorku.ca
+#'     Konstantinos Ntentes: tino.ntentes@@gmail.com (maintainer)
 #'
 #' @examples
 #'
@@ -171,13 +171,72 @@ simfast_m <- function(x, y, weights = NULL, offset = NULL, family = 'gaussian',
   } else {
     stop("Response 'y' must be a single column.")
   }
-  if (!is.null(weights) && !is.numeric(weights))
+  if (NROW(x) != NROW(y)) {
+    stop("predictor matrix 'x' and response 'y' do not have the same number of rows -- fitting cannot continue.")
+  }
+  if ((!is.null(weights)) & (length(weights) != NROW(x))){
+    stop('Weights vector is the wrong length -- fitting cannot continue.')
+  }
+  if (!is.null(weights) & !is.numeric(weights))
     stop("'weights' must be a numeric vector")
-  if (!is.null(weights) && any(weights < 0))
-    stop("negative weights not allowed")
   if (is.null(weights)) {
     weights <- rep(1, length(y))
   }
+  if ((!is.null(offset)) && (length(offset) != NROW(x))){
+    stop('Offset vector is the wrong length -- fitting cannot continue')
+  }
+  if (sum(!complete.cases(x)) > 0) {
+    warning("Missing values in predictor matrix 'x' -- rows with missing data will be removed")
+    cc <- complete.cases(x)
+    x <- x[cc, ]
+    y <- y[cc]
+    if (!is.null(weights)) {
+      weights <- weights[cc]
+    }
+    if (!is.null(offset)) {
+      offset <- offset[cc]
+    }
+  }
+  if (sum(!complete.cases(y)) > 0) {
+    warning("Missing values in response vector 'y' -- rows with missing data will be removed")
+    cc <- complete.cases(y)
+    x <- x[cc, ]
+    y <- y[cc]
+    if (!is.null(weights)) {
+      weights <- weights[cc]
+    }
+    if (!is.null(offset)) {
+      offset <- offset[cc]
+    }
+  }
+  if (!is.null(weights) & (sum(!complete.cases(weights)) > 0)) {
+    warning("Missing values in weights vector -- rows with missing weights will be removed")
+    cc <- complete.cases(weights)
+    x <- x[cc, ]
+    y <- y[cc]
+    if (!is.null(weights)) {
+      weights <- weights[cc]
+    }
+    if (!is.null(offset)) {
+      offset <- offset[cc]
+    }
+  }
+  if (!is.null(offset)) {
+    if (sum(!complete.cases(offset)) > 0) {
+      warning("Missing values in offset vector -- rows with missing offset values will be removed")
+      cc <- complete.cases(offset)
+      x <- x[cc, ]
+      y <- y[cc]
+      if (!is.null(weights)) {
+        weights <- weights[cc]
+      }
+      if (!is.null(offset)) {
+        offset <- offset[cc]
+      }
+    }
+  }
+  if (!is.null(weights) & any(weights < 0, na.rm = T))
+    stop("negative weights not allowed")
   if (is.character(family))
     family <- get(family, mode = "function", envir = parent.frame())
   if (is.function(family))
@@ -401,7 +460,7 @@ simfast_m <- function(x, y, weights = NULL, offset = NULL, family = 'gaussian',
 #'
 #' @author
 #'     Hanna Jankowski: hkj@@yorku.ca
-#'     Konstantinos Ntentes: kntentes@@yorku.ca (maintainer)
+#'     Konstantinos Ntentes: tino.ntentes@@gmail.com (maintainer)
 #'
 #' @examples
 #'
@@ -455,7 +514,7 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL, offset = N
     data <- as.data.frame(data)
   }
   mf <- match.call()
-  m <- match(x = c("formula", "data"),
+  m <- match(x = c("formula", "data", "weights", "offset"),
              table = names(mf), nomatch = 0L)
   mf <- mf[c(1L, m)]
   mf$drop.unused.levels <- TRUE
@@ -469,15 +528,12 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL, offset = N
   xm <- stats::model.matrix(object = mm, data = mf)
   ym <- stats::model.response(mf)
   os <- stats::model.offset(mf)
-  if (!is.null(offset)) {
-    if (length(offset) != NROW(xm)){
-      stop('Invalid offset vector provided. Must be same length
-           as number of observations')
-    } else if (!is.null(os)) {
-      os <- os + offset
-    } else {
-      os <- offset
-    }
+  if (!is.null(os) && (length(os) != NROW(xm))){
+    stop('Invalid offset vector provided. Must be same length as number of observations')
+  }
+  mw <- stats::model.weights(mf)
+  if (!is.null(mw) && (length(mw) != NROW(xm))){
+    stop('Invalid weights vector provided. Must be same length as number of observations')
   }
   if (is.character(family))
     family <- get(family, mode = "function", envir = parent.frame())
@@ -491,7 +547,11 @@ simfast <- function(formula, data, intercept = FALSE, weights = NULL, offset = N
     print(family)
     stop("Specified family cannot be found.")
   }
-  simfit <- simfast_m(x = xm, y = ym, weights = weights, family = family, offset = os,
+  if (!is.null(data) && (NROW(data) != NROW(xm))) {
+    rows_dropped <- NROW(data) - NROW(xm)
+    warning(paste0(rows_dropped, " rows dropped before fitting -- check for NAs/missing values in data or weights/offset arguments"))
+  }
+  simfit <- simfast_m(x = xm, y = ym, weights = mw, family = family, offset = os,
                       returndata = returndata, method = method, multiout = multiout,
                       B = B, k = k, kappa0 = kappa0, tol = tol, max.iter = max.iter)
   if (returnmodel == TRUE){

@@ -13,6 +13,7 @@ Imports:
     movMF (>= 0.2-4)
 Suggests:
     knitr,
+    testthat (>= 3.0.0),
     plotly (>= 4.9.2),
     rmarkdown
 RoxygenNote: 7.1.0
@@ -21,3 +22,4 @@ Authors@R: c(
     person("Konstantinos", "Ntentes", role = c("cre", "aut"), email = "kntentes@yorku.ca"))
 URL: https://github.com/ntentes/simfast
 BugReports: https://github.com/ntentes/simfast/issues
+Config/testthat/edition: 3
