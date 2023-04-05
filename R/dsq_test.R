@@ -12,15 +12,16 @@ dsq.test <- function(simfastobj, N = 10000, B = 10000) {
   yhat <- simfastobj$yhat
   weights <- simfastobj$weights
   ylength <- length(weights)
+  offset <- simfastobj$offset
+  fam  <- simfastobj$family
 
   ## Remove offset if included
   if (!is.null(simfastobj$offset)) {
     oldweights <- weights
-    weights <- oldweights * linkinv(offset)
+    weights <- oldweights * fam$linkinv(offset)
     comment(weights) <- 'offset'
     oldy <- y
     oldyhat <- yhat
-    fam  <- simfastobj$family
     y    <- fam$linkfun(y) - offset
     y    <- fam$linkinv(y)
     yhat <- fam$linkfun(yhat) - offset
@@ -51,8 +52,8 @@ dsq.test <- function(simfastobj, N = 10000, B = 10000) {
   lambdan   <-  weights/sum(weights)
 
   ## calculate dispersion parameter
-  famname <- simfastobj$family()$family
-  if (famename %in% c("poisson",
+  famname <- fam$family
+  if (famname %in% c("poisson",
                       "binomial")) {
     disp <- 1
   } else {
@@ -62,15 +63,24 @@ dsq.test <- function(simfastobj, N = 10000, B = 10000) {
   ## Compute upper quantile of theoretical stat
   dsq.stat		<-	rep(0, B)
 
+  pb <- utils::txtProgressBar(min = 0, max = 100, style = 3)
+  pbseq <- round(seq(from = 0, to = 100, by = 100/(B-1)))
+
   for (i in 1:B) {
     Ti          <-  rnorm(n = ylength, mean = 0, sd = sqrt(1/lambdan))
     res				  <-	apply(X = alphas, FUN = dsq, MARGIN = 1, newresp = Ti, wts = weights, preds = x)
     indmin      <-  which.min(res)
     dsq.stat[i] <-  res[indmin]
+
+    utils::setTxtProgressBar(pb, pbseq[i])
+
   }
+
+  close(pb)
 
   empcdf   <- ecdf(disp * dsq.stat)
 
+  ## what is ll?
   pval  <-  1 - empcdf(ll)
 
 }
